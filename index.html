@@ -15,7 +15,6 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-
 header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .logo{display:flex;align-items:center;gap:10px;}
 .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,#60a5fa,#a78bfa);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;}
@@ -26,47 +25,22 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28p
 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 #upd{font-size:11px;color:var(--text3);}
-
-/* ── 时间筛选器 ── */
-.filter-bar{
-  background:var(--bg2);border-bottom:1px solid var(--border);
-  padding:10px 28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-}
+.filter-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .quick-btns{display:flex;gap:4px;}
-.qbtn{
-  padding:5px 14px;border-radius:6px;border:1px solid var(--border2);
-  background:transparent;font-size:12px;color:var(--text2);
-  cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all 0.15s;
-}
+.qbtn{padding:5px 14px;border-radius:6px;border:1px solid var(--border2);background:transparent;font-size:12px;color:var(--text2);cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all 0.15s;}
 .qbtn:hover{border-color:var(--blue);color:var(--blue);}
 .qbtn.active{background:rgba(96,165,250,0.15);color:var(--blue);border-color:var(--blue);}
-
 .divider{width:1px;height:24px;background:var(--border2);margin:0 4px;}
-
 .date-range{display:flex;align-items:center;gap:8px;}
-.date-input{
-  background:var(--bg3);border:1px solid var(--border2);border-radius:6px;
-  padding:5px 10px;font-size:12px;color:var(--text);
-  font-family:'Noto Sans SC',sans-serif;outline:none;
-  cursor:pointer;transition:border-color 0.15s;
-  color-scheme:dark;
-}
+.date-input{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--text);font-family:'Noto Sans SC',sans-serif;outline:none;transition:border-color 0.15s;color-scheme:dark;}
 .date-input:focus{border-color:var(--blue);}
 .date-arrow{font-size:12px;color:var(--text3);}
-.confirm-btn{
-  padding:5px 14px;border-radius:6px;
-  background:var(--blue);border:none;
-  font-size:12px;color:#fff;font-weight:500;
-  cursor:pointer;font-family:'Noto Sans SC',sans-serif;
-  transition:opacity 0.15s;
-}
+.confirm-btn{padding:5px 14px;border-radius:6px;background:var(--blue);border:none;font-size:12px;color:#fff;font-weight:500;cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:opacity 0.15s;}
 .confirm-btn:hover{opacity:0.85;}
 .range-label{font-size:11px;color:var(--text3);white-space:nowrap;}
-
 main{padding:20px 28px;max-width:1440px;margin:0 auto;}
 .sec{font-size:12px;font-weight:500;color:var(--text3);margin-bottom:12px;letter-spacing:0.06em;display:flex;align-items:center;gap:8px;}
 .sec::before{content:'';width:3px;height:12px;background:var(--blue);border-radius:2px;display:inline-block;}
-
 .kg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
 .kc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;transition:border-color 0.2s,transform 0.15s;}
 .kc:hover{border-color:var(--border2);transform:translateY(-1px);}
@@ -79,22 +53,16 @@ main{padding:20px 28px;max-width:1440px;margin:0 auto;}
 .kl{font-size:11px;color:var(--text3);margin-bottom:10px;font-weight:500;}
 .kv{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-0.5px;color:var(--text);}
 .km{font-size:11px;color:var(--text3);margin-top:8px;line-height:1.9;}
-.hi{color:var(--green);font-weight:500;}
-.hir{color:var(--red);font-weight:500;}
-.hi-a{color:var(--amber);font-weight:500;}
-
+.hi{color:var(--green);font-weight:500;}.hir{color:var(--red);font-weight:500;}.hi-a{color:var(--amber);font-weight:500;}
 .ig3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
 .ig5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
 .ic{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:border-color 0.2s;}
 .ic:hover{border-color:var(--border2);}
-.ic.g{border-left:3px solid var(--green);}
-.ic.b{border-left:3px solid var(--red);}
+.ic.g{border-left:3px solid var(--green);}.ic.b{border-left:3px solid var(--red);}
 .il{font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:500;}
 .iv{font-size:18px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text);}
 .im{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.8;}
-.rt{color:var(--green);font-weight:500;}
-.rtr{color:var(--red);font-weight:500;}
-
+.rt{color:var(--green);font-weight:500;}.rtr{color:var(--red);font-weight:500;}
 .cr{display:grid;grid-template-columns:1fr 300px;gap:12px;margin-bottom:20px;}
 .cc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
 .ct{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;}
@@ -102,7 +70,6 @@ main{padding:20px 28px;max-width:1440px;margin:0 auto;}
 .leg{display:flex;gap:14px;margin-bottom:10px;}
 .li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);}
 .ld{width:8px;height:8px;border-radius:2px;}
-
 .fw{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
 .flbl{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;}
 .fbg{background:var(--bg3);border-radius:4px;height:24px;overflow:hidden;}
@@ -111,7 +78,6 @@ main{padding:20px 28px;max-width:1440px;margin:0 auto;}
 .fb2{background:linear-gradient(90deg,#4ade80,#22d3ee);}
 .fb3{background:linear-gradient(90deg,#fbbf24,#f59e0b);}
 .fb4{background:linear-gradient(90deg,#f87171,#fb923c);}
-
 .tc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px;}
 table{width:100%;border-collapse:collapse;}
 thead tr{background:var(--bg3);}
@@ -121,14 +87,11 @@ td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--border);font-
 td:first-child{text-align:left;font-family:'Noto Sans SC',sans-serif;font-size:12px;color:var(--text2);}
 tbody tr:last-child td{font-weight:700;background:var(--bg3);color:var(--text);}
 tbody tr:hover:not(:last-child){background:rgba(255,255,255,0.02);}
-.pos{color:var(--green)!important;}
-.neg{color:var(--red)!important;}
-
+.pos{color:var(--green)!important;}.neg{color:var(--red)!important;}
 .loading{text-align:center;padding:80px 20px;color:var(--text2);}
 .spinner{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .err{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);border-radius:10px;padding:16px 20px;color:var(--red);font-size:13px;margin:20px 0;line-height:1.7;}
-
 footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);margin-top:8px;}
 footer a{color:var(--text3);text-decoration:none;}
 ::-webkit-scrollbar{width:6px;height:6px;}
@@ -137,14 +100,10 @@ footer a{color:var(--text3);text-decoration:none;}
 </style>
 </head>
 <body>
-
 <header>
   <div class="logo">
     <div class="logo-icon">财</div>
-    <div>
-      <div class="logo-text">领航财务BI看板</div>
-      <div class="logo-sub">实时数据同步</div>
-    </div>
+    <div><div class="logo-text">领航财务BI看板</div><div class="logo-sub">实时数据同步</div></div>
   </div>
   <div class="hdr-r">
     <div id="upd">加载中...</div>
@@ -152,14 +111,13 @@ footer a{color:var(--text3);text-decoration:none;}
   </div>
 </header>
 
-<!-- 时间筛选器 -->
 <div class="filter-bar">
   <div class="quick-btns">
-    <button class="qbtn" onclick="setQuick('today')">今日</button>
-    <button class="qbtn" onclick="setQuick('yesterday')">昨日</button>
-    <button class="qbtn" onclick="setQuick('week')">本周</button>
-    <button class="qbtn" onclick="setQuick('lastmonth')">上月</button>
-    <button class="qbtn active" onclick="setQuick('month')">本月</button>
+    <button class="qbtn" onclick="setQuick(this,'today')">今日</button>
+    <button class="qbtn" onclick="setQuick(this,'yesterday')">昨日</button>
+    <button class="qbtn" onclick="setQuick(this,'week')">本周</button>
+    <button class="qbtn" onclick="setQuick(this,'lastmonth')">上月</button>
+    <button class="qbtn active" onclick="setQuick(this,'month')">本月</button>
   </div>
   <div class="divider"></div>
   <div class="date-range">
@@ -172,9 +130,7 @@ footer a{color:var(--text3);text-decoration:none;}
 </div>
 
 <main>
-  <div id="app">
-    <div class="loading"><div class="spinner"></div>正在从 Google Sheets 加载数据...</div>
-  </div>
+  <div id="app"><div class="loading"><div class="spinner"></div>正在从 Google Sheets 加载数据...</div></div>
 </main>
 
 <footer>
@@ -186,7 +142,6 @@ footer a{color:var(--text3);text-decoration:none;}
 const SHEET_ID  = '1JyXWDifCSfqXNVOwiS4xvLfQpmlLhW-GFsjSsqzJ7TY';
 const SHEET_GID = '877653223';
 const REFRESH_MS = 60000;
-
 const COL = {
   date:1, inc_charge:5, inc_ad:6, inc_other:7, inc_total:8,
   loss_channel:21, loss_ad:22,
@@ -194,48 +149,43 @@ const COL = {
   profit:33,
 };
 
-let allRows=[], chart=null;
-let filterFrom=null, filterTo=null;
+let allRows=[], chart=null, filterFrom=null, filterTo=null;
 
 // ── 日期工具 ──
-function toYMD(d){ return d.toISOString().slice(0,10); }
-function today(){ return new Date(); }
-function startOfWeek(){
-  const d=new Date(); d.setDate(d.getDate()-d.getDay()+1); return d;
-}
-function startOfMonth(){ const d=new Date(); d.setDate(1); return d; }
-function startOfLastMonth(){
-  const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()-1); return d;
-}
-function endOfLastMonth(){
-  const d=new Date(); d.setDate(0); return d;
-}
+const toYMD = d => d.toISOString().slice(0,10);
 
-// 把 "03-01" / "3月1日" 等格式统一解析为 Date
-function parseRowDate(str){
+// 把表格中的 "03-01" / "3月1日" 等解析为 "YYYY-MM-DD"
+// 关键：没有年份时用数据推断年份（取数据集里最大年份或当前年）
+function normalizeDate(str, refYear){
   const s = String(str).trim();
-  // 03-01
-  let m = s.match(/^(\d{1,2})-(\d{1,2})$/);
-  if(m){
-    const now=new Date();
-    return new Date(now.getFullYear(), parseInt(m[1])-1, parseInt(m[2]));
-  }
+  let m;
+  // 03-01 或 3-1
+  m = s.match(/^(\d{1,2})-(\d{1,2})$/);
+  if(m) return `${refYear}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
   // 3月1日
   m = s.match(/^(\d{1,2})月(\d{1,2})日$/);
-  if(m){
-    const now=new Date();
-    return new Date(now.getFullYear(), parseInt(m[1])-1, parseInt(m[2]));
-  }
-  // 2026/03/01 or 2026-03-01
+  if(m) return `${refYear}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+  // 已含年份 2026/03/01 or 2026-03-01
   m = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-  if(m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+  if(m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
   return null;
 }
 
-function setQuick(type){
+function getRefYear(rows){
+  // 从 Google Sheets 返回的 date 值如果是 Date 对象会含年份
+  // 否则用当前年
+  return new Date().getFullYear();
+}
+
+function startOfMonth(){ const d=new Date(); d.setDate(1); return d; }
+function startOfLastMonth(){ const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()-1); return d; }
+function endOfLastMonth(){ const d=new Date(); d.setDate(0); return d; }
+function startOfWeek(){ const d=new Date(); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d; }
+
+function setQuick(btn, type){
   document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  const t=today();
+  btn.classList.add('active');
+  const t=new Date();
   if(type==='today'){
     filterFrom=filterTo=toYMD(t);
   } else if(type==='yesterday'){
@@ -250,37 +200,35 @@ function setQuick(type){
   }
   document.getElementById('date-from').value=filterFrom;
   document.getElementById('date-to').value=filterTo;
-  updateRangeLabel();
+  updateLabel();
   render();
 }
 
 function applyCustomRange(){
   filterFrom=document.getElementById('date-from').value;
-  filterTo  =document.getElementById('date-to').value;
+  filterTo=document.getElementById('date-to').value;
   document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
-  updateRangeLabel();
+  updateLabel();
   render();
 }
 
-function updateRangeLabel(){
-  const el=document.getElementById('range-label');
-  if(filterFrom&&filterTo) el.textContent=`${filterFrom} ~ ${filterTo}`;
-  else el.textContent='';
+function updateLabel(){
+  document.getElementById('range-label').textContent =
+    filterFrom&&filterTo ? `${filterFrom} ~ ${filterTo}` : '';
 }
 
 function filtered(){
-  if(!filterFrom&&!filterTo) return allRows;
+  const refYear = getRefYear(allRows);
   return allRows.filter(r=>{
-    const d=parseRowDate(r.date);
-    if(!d) return false;
-    const ymd=toYMD(d);
-    if(filterFrom&&ymd<filterFrom) return false;
-    if(filterTo  &&ymd>filterTo  ) return false;
+    const ymd = normalizeDate(r.date, refYear);
+    if(!ymd) return false;
+    if(filterFrom && ymd < filterFrom) return false;
+    if(filterTo   && ymd > filterTo  ) return false;
     return true;
   });
 }
 
-// ── 数据获取 ──
+// ── 数据 ──
 const fmt = v => {
   if(v===null||v===undefined||isNaN(v))return'—';
   const n=parseFloat(v);
@@ -290,14 +238,13 @@ const fmt = v => {
 };
 const pct=(a,b)=>b&&b!==0?(a/b*100).toFixed(2)+'%':'—';
 const sum=(rows,k)=>rows.reduce((s,r)=>s+(r[k]||0),0);
-const pc =v=>parseFloat(v)>=0?'pos':'neg';
+const pc=v=>parseFloat(v)>=0?'pos':'neg';
 
 async function fetchSheet(){
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}&nocache=${Date.now()}`;
   const resp=await fetch(url);
   const text=await resp.text();
-  const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-  return json;
+  return JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
 }
 
 function isDataRow(c){
@@ -314,13 +261,19 @@ function parseRows(json){
     const c=row.c||[];
     if(!isDataRow(c))continue;
     const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
+    // Google Sheets 日期有时返回 "Date(2026,2,1)" 格式
+    let rawDate = c[COL.date]?.v;
+    if(typeof rawDate === 'string' && rawDate.startsWith('Date(')){
+      const parts = rawDate.match(/Date\((\d+),(\d+),(\d+)\)/);
+      if(parts) rawDate = `${parts[1]}-${String(parseInt(parts[2])+1).padStart(2,'0')}-${parts[3].padStart(2,'0')}`;
+    }
     result.push({
-      date:String(c[COL.date].v),
+      date: String(rawDate||''),
       inc_charge:g(COL.inc_charge), inc_ad:g(COL.inc_ad),
       inc_other:g(COL.inc_other),   inc_total:g(COL.inc_total),
       loss_channel:g(COL.loss_channel), loss_ad:g(COL.loss_ad),
-      exp_tech:g(COL.exp_tech),   exp_ops:g(COL.exp_ops),
-      exp_biz:g(COL.exp_biz),     exp_channel:g(COL.exp_channel),
+      exp_tech:g(COL.exp_tech), exp_ops:g(COL.exp_ops),
+      exp_biz:g(COL.exp_biz),   exp_channel:g(COL.exp_channel),
       exp_other:g(COL.exp_other), exp_total:g(COL.exp_total),
       profit:g(COL.profit),
     });
@@ -332,7 +285,7 @@ function parseRows(json){
 function render(){
   const rows=filtered();
   if(!rows.length){
-    document.getElementById('app').innerHTML='<div class="err">⚠️ 所选时间范围内无数据。</div>';
+    document.getElementById('app').innerHTML='<div class="err">⚠️ 所选时间范围内无数据，表格日期格式可能不匹配。</div>';
     return;
   }
   const inc=sum(rows,'inc_total'), exp=sum(rows,'exp_total'), prof=sum(rows,'profit');
@@ -345,13 +298,9 @@ function render(){
   const tRows=[...rows].reverse().map(r=>`
     <tr>
       <td>${r.date}</td>
-      <td>${fmt(r.inc_total)}</td>
-      <td>${fmt(r.inc_charge)}</td>
-      <td>${fmt(r.inc_ad)}</td>
+      <td>${fmt(r.inc_total)}</td><td>${fmt(r.inc_charge)}</td><td>${fmt(r.inc_ad)}</td>
       <td class="hi-a">${fmt(r.loss_channel)}</td>
-      <td>${fmt(r.exp_total)}</td>
-      <td>${fmt(r.exp_channel)}</td>
-      <td>${fmt(r.exp_tech)}</td>
+      <td>${fmt(r.exp_total)}</td><td>${fmt(r.exp_channel)}</td><td>${fmt(r.exp_tech)}</td>
       <td class="${pc(r.profit)}">${fmt(r.profit)}</td>
     </tr>`).join('');
 
@@ -405,26 +354,24 @@ function render(){
     </div>
 
     <div class="sec">每日明细</div>
-    <div class="tc">
-      <div style="overflow-x:auto">
-        <table>
-          <thead><tr>
-            <th>日期</th><th>总收入</th><th>充值收入</th><th>广告收入</th>
-            <th>通道损耗</th><th>总支出</th><th>渠道开支</th><th>技术开支</th><th>当日毛利</th>
-          </tr></thead>
-          <tbody>
-            ${tRows}
-            <tr>
-              <td>合计</td>
-              <td>${fmt(inc)}</td><td>${fmt(incC)}</td><td>${fmt(incA)}</td>
-              <td class="hi-a">${fmt(lossC)}</td><td>${fmt(exp)}</td>
-              <td>${fmt(expCh)}</td><td>${fmt(expT)}</td>
-              <td class="${pc(prof)}">${fmt(prof)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>`;
+    <div class="tc"><div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>日期</th><th>总收入</th><th>充值收入</th><th>广告收入</th>
+          <th>通道损耗</th><th>总支出</th><th>渠道开支</th><th>技术开支</th><th>当日毛利</th>
+        </tr></thead>
+        <tbody>
+          ${tRows}
+          <tr>
+            <td>合计</td>
+            <td>${fmt(inc)}</td><td>${fmt(incC)}</td><td>${fmt(incA)}</td>
+            <td class="hi-a">${fmt(lossC)}</td><td>${fmt(exp)}</td>
+            <td>${fmt(expCh)}</td><td>${fmt(expT)}</td>
+            <td class="${pc(prof)}">${fmt(prof)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div></div>`;
 
   setTimeout(()=>{
     const ctx=document.getElementById('trendChart');
@@ -465,14 +412,14 @@ async function refresh(){
   }
 }
 
-// 初始化 — 默认本月
+// 初始化默认本月
 (function init(){
-  const t=today();
+  const t=new Date();
   filterFrom=toYMD(startOfMonth());
   filterTo=toYMD(t);
   document.getElementById('date-from').value=filterFrom;
   document.getElementById('date-to').value=filterTo;
-  updateRangeLabel();
+  updateLabel();
 })();
 
 refresh();
