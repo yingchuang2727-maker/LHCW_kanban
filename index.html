@@ -151,36 +151,31 @@ const COL = {
 
 let allRows=[], chart=null, filterFrom=null, filterTo=null;
 
-// ── 日期工具 ──
-const toYMD = d => d.toISOString().slice(0,10);
+const toYMD = d => {
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+};
 
-// 把表格中的 "03-01" / "3月1日" 等解析为 "YYYY-MM-DD"
-// 关键：没有年份时用数据推断年份（取数据集里最大年份或当前年）
-function normalizeDate(str, refYear){
-  const s = String(str).trim();
-  let m;
-  // 03-01 或 3-1
-  m = s.match(/^(\d{1,2})-(\d{1,2})$/);
-  if(m) return `${refYear}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
-  // 3月1日
-  m = s.match(/^(\d{1,2})月(\d{1,2})日$/);
-  if(m) return `${refYear}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
-  // 已含年份 2026/03/01 or 2026-03-01
-  m = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-  if(m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+// 解析 Google Sheets 返回的日期值
+// 格式: "Date(2026,2,5)" — 月份从0开始
+function parseGSheetDate(v) {
+  if(!v) return null;
+  const s = String(v);
+  // Date(2026,2,5) 格式
+  const m = s.match(/Date\((\d+),(\d+),(\d+)\)/);
+  if(m) {
+    const yr=parseInt(m[1]), mo=parseInt(m[2]), dy=parseInt(m[3]);
+    return new Date(yr, mo, dy); // mo已是0-based，直接用
+  }
+  // 已是 YYYY-MM-DD
+  if(s.match(/^\d{4}-\d{2}-\d{2}$/)) return new Date(s);
   return null;
 }
 
-function getRefYear(rows){
-  // 从 Google Sheets 返回的 date 值如果是 Date 对象会含年份
-  // 否则用当前年
-  return new Date().getFullYear();
-}
-
-function startOfMonth(){ const d=new Date(); d.setDate(1); return d; }
-function startOfLastMonth(){ const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()-1); return d; }
-function endOfLastMonth(){ const d=new Date(); d.setDate(0); return d; }
-function startOfWeek(){ const d=new Date(); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d; }
+function startOfMonth(){ const d=new Date(); d.setDate(1); d.setHours(0,0,0,0); return d; }
+function startOfLastMonth(){ const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()-1); d.setHours(0,0,0,0); return d; }
+function endOfLastMonth(){ const d=new Date(); d.setDate(0); d.setHours(23,59,59,999); return d; }
+function startOfWeek(){ const d=new Date(); d.setDate(d.getDate()-((d.getDay()+6)%7)); d.setHours(0,0,0,0); return d; }
 
 function setQuick(btn, type){
   document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
@@ -218,17 +213,15 @@ function updateLabel(){
 }
 
 function filtered(){
-  const refYear = getRefYear(allRows);
   return allRows.filter(r=>{
-    const ymd = normalizeDate(r.date, refYear);
-    if(!ymd) return false;
+    const ymd = r.ymd;
+    if(!ymd) return true; // 无法解析日期则显示
     if(filterFrom && ymd < filterFrom) return false;
     if(filterTo   && ymd > filterTo  ) return false;
     return true;
   });
 }
 
-// ── 数据 ──
 const fmt = v => {
   if(v===null||v===undefined||isNaN(v))return'—';
   const n=parseFloat(v);
@@ -248,27 +241,30 @@ async function fetchSheet(){
 }
 
 function isDataRow(c){
-  const d=c[COL.date]?.v;
-  if(!d)return false;
-  const s=String(d);
-  if(['合计','日期','项','理论','实际','月份','-','目标','进度','剩余'].some(k=>s.includes(k)))return false;
-  return c[COL.inc_total]?.v!=null||c[COL.inc_charge]?.v!=null;
+  const cell = c[COL.date];
+  if(!cell?.v) return false;
+  const s = String(cell.v);
+  // 跳过标题/合计行（这些行日期列通常是文字）
+  if(['合计','日期','项','理论','实际','月份'].some(k=>s.includes(k))) return false;
+  // 必须是 Date(...) 格式才是数据行
+  if(!s.startsWith('Date(')) return false;
+  return true;
 }
 
 function parseRows(json){
   const result=[];
   for(const row of json.table.rows){
     const c=row.c||[];
-    if(!isDataRow(c))continue;
+    if(!isDataRow(c)) continue;
     const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
-    // Google Sheets 日期有时返回 "Date(2026,2,1)" 格式
-    let rawDate = c[COL.date]?.v;
-    if(typeof rawDate === 'string' && rawDate.startsWith('Date(')){
-      const parts = rawDate.match(/Date\((\d+),(\d+),(\d+)\)/);
-      if(parts) rawDate = `${parts[1]}-${String(parseInt(parts[2])+1).padStart(2,'0')}-${parts[3].padStart(2,'0')}`;
-    }
+    const rawDate = c[COL.date].v;
+    const dateObj = parseGSheetDate(rawDate);
+    const ymd = dateObj ? toYMD(dateObj) : null;
+    // 显示用日期：用格式化字符串 f，否则自己格式化
+    const displayDate = c[COL.date].f || (dateObj ? `${dateObj.getMonth()+1}月${dateObj.getDate()}日` : String(rawDate));
     result.push({
-      date: String(rawDate||''),
+      date: displayDate,
+      ymd,
       inc_charge:g(COL.inc_charge), inc_ad:g(COL.inc_ad),
       inc_other:g(COL.inc_other),   inc_total:g(COL.inc_total),
       loss_channel:g(COL.loss_channel), loss_ad:g(COL.loss_ad),
@@ -281,11 +277,10 @@ function parseRows(json){
   return result;
 }
 
-// ── 渲染 ──
 function render(){
   const rows=filtered();
   if(!rows.length){
-    document.getElementById('app').innerHTML='<div class="err">⚠️ 所选时间范围内无数据，表格日期格式可能不匹配。</div>';
+    document.getElementById('app').innerHTML='<div class="err">⚠️ 所选时间范围内无数据。</div>';
     return;
   }
   const inc=sum(rows,'inc_total'), exp=sum(rows,'exp_total'), prof=sum(rows,'profit');
@@ -412,7 +407,6 @@ async function refresh(){
   }
 }
 
-// 初始化默认本月
 (function init(){
   const t=new Date();
   filterFrom=toYMD(startOfMonth());
