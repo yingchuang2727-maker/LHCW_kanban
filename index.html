@@ -135,15 +135,18 @@ const GID_BUDGET = '1005558888';
 const GID_AD     = '100107827';
 const REFRESH_MS = 60000;
 
-// 日数据列索引（0-based，含空列）
-// 列0=空, 1=月份, 2=日期, 3=理论收入, 4=理论支出, 5=理论毛利
-// 6=实际收入, 7=实际支出, 8=实际损耗, 9=实际毛利
-// 10-13=空/理论收入细项, 14=充值, 15=广告, 16=其他, 17=合计
-// 31=通道损耗, 32=广告损耗
-// 34=技术, 35=运营, 36=商务, 37=渠道, 38=其他支出, 39=合计支出
+// 日数据列索引（0-based，Excel列名对应）
+// A=0(空), B=1(月份), C=2(日期)
+// H=7(实际收入), I=8(实际支出), J=9(实际损耗), K=10(实际毛利)
+// O=14(充值), P=15(广告), Q=16(其他), R=17(合计)
+// AF=31(通道损耗), AG=32(广告损耗)
+// AI=34(技术), AJ=35(运营), AK=36(商务), AL=37(渠道), AM=38(其他), AN=39(合计)
 const C = {
   month:1, date:2,
-  actual_inc:6, actual_exp:7, actual_loss:8, actual_profit:9,
+  actual_inc:7,   // H栏 = 实际收入
+  actual_exp:8,   // I栏 = 实际支出
+  actual_loss:9,  // J栏 = 实际损耗
+  actual_profit:10, // K栏 = 实际毛利
   inc_charge:14, inc_ad:15, inc_other:16, inc_total:17,
   loss_channel:31, loss_ad:32,
   exp_tech:34, exp_ops:35, exp_biz:36, exp_channel:37, exp_other:38, exp_total:39
@@ -164,7 +167,7 @@ const BUDGET = {
 // 状态
 // ═══════════════════════════════════
 let allRows=[], adRows=[], filterFrom=null, filterTo=null;
-let charts={};
+let budgetRows=[], charts={};
 
 // ═══════════════════════════════════
 // 工具
@@ -247,6 +250,8 @@ function parseDailyRows(json){
       ymd:     toYMD(dateObj),
       actual_inc:    g(C.actual_inc),
       actual_exp:    g(C.actual_exp),
+      actual_loss:   g(C.actual_loss),
+      actual_cost:   g(C.actual_exp) + g(C.actual_loss), // I+J = 总成本
       actual_profit: g(C.actual_profit),
       inc_charge:    g(C.inc_charge),
       inc_ad:        g(C.inc_ad),
@@ -263,6 +268,34 @@ function parseDailyRows(json){
     });
   }
   return result;
+}
+
+// 预算Sheet列索引（0-based）
+// 0=空, 1=年, 2=月
+// G=6(收入合计完成比例), L=11(开支合计消耗比例)
+// 目标收入合计=列25, 预算合计=列29
+function parseBudgetRows(json){
+  const result=[];
+  for(const row of json.table.rows){
+    const c=row.c||[];
+    const yearCell=c[1], monthCell=c[2];
+    if(!yearCell?.v||!monthCell?.v)continue;
+    const yr=parseFloat(yearCell.v), mo=parseFloat(monthCell.v);
+    if(isNaN(yr)||isNaN(mo)||mo<1||mo>12)continue;
+    const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
+    result.push({
+      year:yr, month:mo,
+      inc_achieve_pct: g(6),   // G栏：收入合计完成比例
+      exp_consume_pct: g(11),  // L栏：开支合计消耗比例
+      inc_target:      g(25),  // 目标收入合计
+      exp_budget:      g(29),  // 预算合计
+    });
+  }
+  return result;
+}
+
+function getBudgetForMonth(mo){
+  return budgetRows.find(r=>r.month===mo)||null;
 }
 
 function parseAdRows(json){
@@ -394,6 +427,7 @@ function render(){
   const incC   = sum(rows,'inc_charge');
   const incA   = sum(rows,'inc_ad');
   const incO   = sum(rows,'inc_other');
+  const cost   = sum(rows,'actual_cost');  // 总成本 = I+J
   const exp    = sum(rows,'exp_total');
   const expT   = sum(rows,'exp_tech');
   const expO   = sum(rows,'exp_ops');
@@ -402,8 +436,16 @@ function render(){
   const expOt  = sum(rows,'exp_other');
   const lossC  = sum(rows,'loss_channel');
   const lossA  = sum(rows,'loss_ad');
-  const prof   = sum(rows,'actual_profit');
+  const prof   = sum(rows,'actual_profit');  // K栏
   const margin = pctOf(prof,inc);
+
+  // 从筛选日期判断当前月份，取预算Sheet对应月行
+  const curMonth = filterFrom ? new Date(filterFrom).getMonth()+1 : new Date().getMonth()+1;
+  const bRow = getBudgetForMonth(curMonth);
+  const inc_achieve_pct = bRow ? bRow.inc_achieve_pct*100 : pctOf(inc,BUDGET.inc_total);
+  const exp_consume_pct = bRow ? bRow.exp_consume_pct*100 : pctOf(cost,BUDGET.exp_total);
+  const inc_target      = bRow ? bRow.inc_target      : BUDGET.inc_total;
+  const exp_budget      = bRow ? bRow.exp_budget      : BUDGET.exp_total;
 
   // 上期汇总
   const p_inc=sum(prev,'inc_total'), p_incC=sum(prev,'inc_charge'), p_incA=sum(prev,'inc_ad');
@@ -444,28 +486,28 @@ function render(){
       </div>
     </div>
     <div class="kc c-red">
-      <div class="kl">总支出</div>
-      <div class="kv">${fmt(exp)}</div>
+      <div class="kl">总成本</div>
+      <div class="kv">${fmt(cost)}</div>
       <div class="kmeta">
-        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(exp,p_exp)}</div>
-        <div class="kmeta-row"><span class="kmeta-label">渠道</span><span class="kmeta-val">${fmt(expCh)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">技术</span><span class="kmeta-val">${fmt(expT)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(cost,sum(prev,'actual_cost'))}</div>
+        <div class="kmeta-row"><span class="kmeta-label">支出</span><span class="kmeta-val">${fmt(sum(rows,'actual_exp'))}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">损耗</span><span class="kmeta-val">${fmt(sum(rows,'actual_loss'))}</span></div>
       </div>
     </div>
     <div class="kc c-amber">
       <div class="kl">目标销售达成率</div>
-      <div class="kv">${pctStr(inc,BUDGET.inc_total)}</div>
+      <div class="kv">${fmtPct(inc_achieve_pct)}</div>
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">实际</span><span class="kmeta-val">${fmt(inc)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(BUDGET.inc_total)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(inc_target)}</span></div>
       </div>
     </div>
     <div class="kc c-purple">
       <div class="kl">预算消耗使用率</div>
-      <div class="kv">${pctStr(exp,BUDGET.exp_total)}</div>
+      <div class="kv">${fmtPct(exp_consume_pct)}</div>
       <div class="kmeta">
-        <div class="kmeta-row"><span class="kmeta-label">实际</span><span class="kmeta-val">${fmt(exp)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">预算</span><span class="kmeta-val">${fmt(BUDGET.exp_total)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">实际</span><span class="kmeta-val">${fmt(cost)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">预算</span><span class="kmeta-val">${fmt(exp_budget)}</span></div>
       </div>
     </div>
   </div>
@@ -655,17 +697,18 @@ function render(){
 // ═══════════════════════════════════
 async function refresh(){
   try{
-    const [dailyJson,adJson]=await Promise.all([
+    const [dailyJson,adJson,budgetJson]=await Promise.all([
       fetchGID(GID_DAILY),
-      fetchGID(GID_AD).catch(()=>({table:{rows:[]}}))
+      fetchGID(GID_AD).catch(()=>({table:{rows:[]}})),
+      fetchGID(GID_BUDGET).catch(()=>({table:{rows:[]}}))
     ]);
     allRows=parseDailyRows(dailyJson);
     adRows=parseAdRows(adJson);
+    budgetRows=parseBudgetRows(budgetJson);
     render();
     document.getElementById('upd').textContent='最后更新 '+new Date().toLocaleTimeString('zh-CN');
   }catch(e){
-    // 即使出错也渲染空骨架
-    allRows=[];adRows=[];
+    allRows=[];adRows=[];budgetRows=[];
     render();
     console.error(e);
   }
