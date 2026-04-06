@@ -436,8 +436,12 @@ function render(){
   const expOt  = sum(rows,'exp_other');
   const lossC  = sum(rows,'loss_channel');
   const lossA  = sum(rows,'loss_ad');
-  const prof   = sum(rows,'actual_profit');  // K栏
-  const margin = pctOf(prof,inc);
+  const prof       = sum(rows,'actual_profit');  // K栏
+  const actual_exp = sum(rows,'actual_exp');     // I栏
+  const actual_loss= sum(rows,'actual_loss');    // J栏
+  // 毛利率 = (H收入 - I支出 - J损耗) / H收入
+  const margin_val = inc > 0 ? (inc - actual_exp - actual_loss) / inc * 100 : 0;
+  const margin     = margin_val;
 
   // 从筛选日期判断当前月份，取预算Sheet对应月行
   const curMonth = filterFrom ? new Date(filterFrom).getMonth()+1 : new Date().getMonth()+1;
@@ -481,8 +485,6 @@ function render(){
       <div class="kv">${fmt(inc)}</div>
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(inc,p_inc)}</div>
-        <div class="kmeta-row"><span class="kmeta-label">充值</span><span class="kmeta-val">${fmt(incC)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">广告</span><span class="kmeta-val">${fmt(incA)}</span></div>
       </div>
     </div>
     <div class="kc c-red">
@@ -490,8 +492,6 @@ function render(){
       <div class="kv">${fmt(cost)}</div>
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(cost,sum(prev,'actual_cost'))}</div>
-        <div class="kmeta-row"><span class="kmeta-label">支出</span><span class="kmeta-val">${fmt(sum(rows,'actual_exp'))}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">损耗</span><span class="kmeta-val">${fmt(sum(rows,'actual_loss'))}</span></div>
       </div>
     </div>
     <div class="kc c-amber">
