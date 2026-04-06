@@ -659,7 +659,7 @@ function render(){
       <div style="height:220px;display:flex;justify-content:center"><canvas id="chartCostPie"></canvas></div>
     </div>
     <div class="cc">
-      <div class="ct">成本明细横向对比</div>
+      <div class="ct">成本开支</div>
       <div class="cs">各项实际支出金额</div>
       <div style="height:220px"><canvas id="chartCostBar"></canvas></div>
     </div>
@@ -674,21 +674,139 @@ function render(){
   setTimeout(()=>{
     mkChart('chartIncPie', pieOpts(['充值收入','广告收入','其他收入'],[incC,incA,incO],['#60a5fa','#4ade80','#2dd4bf']));
     mkChart('chartAdTypePie', pieOpts(AD_TYPES,adVals,AD_COLORS));
-    mkChart('chartAdTypeBar', hbarOpts(AD_TYPES,[{label:'广告收入',data:adVals,backgroundColor:AD_COLORS.map(c=>c+'bb'),borderColor:AD_COLORS,borderWidth:1,borderRadius:4}]));
-    mkChart('chartAdTypeMom', hbarOpts(AD_TYPES,[
-      {label:'本月',data:adVals,backgroundColor:'rgba(96,165,250,0.7)',borderRadius:4},
-      {label:'上月',data:adValsPrev,backgroundColor:'rgba(96,165,250,0.25)',borderRadius:4},
-    ]));
+
+    // 广告收入类型明细 — 横向柱，显示金额数字
+    mkChart('chartAdTypeBar',{
+      type:'bar',
+      data:{labels:AD_TYPES,datasets:[{label:'广告收入',data:adVals,backgroundColor:AD_COLORS.map(c=>c+'bb'),borderColor:AD_COLORS,borderWidth:1,borderRadius:4}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},datalabels:{display:false},
+          tooltip:{...tp,callbacks:{label:c=>`${fmt(c.raw)}`}}},
+        scales:{
+          x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}},
+          y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}
+        },
+        animation:{onComplete:function(){
+          const chart=this;const ctx=chart.ctx;
+          ctx.font='11px "Noto Sans SC"';ctx.fillStyle='#e8eaf0';ctx.textAlign='left';
+          chart.data.datasets.forEach((_,di)=>{
+            chart.getDatasetMeta(di).data.forEach((bar,i)=>{
+              const v=chart.data.datasets[di].data[i];
+              if(v>0)ctx.fillText(fmt(v),bar.x+4,bar.y+4);
+            });
+          });
+        }}
+      }
+    });
+
+    // 广告收入本月 vs 上月对比 — 竖直条图，显示金额数字
+    mkChart('chartAdTypeMom',{
+      type:'bar',
+      data:{labels:AD_TYPES,datasets:[
+        {label:'本月',data:adVals,backgroundColor:'rgba(96,165,250,0.8)',borderRadius:4},
+        {label:'上月',data:adValsPrev,backgroundColor:'rgba(96,165,250,0.25)',borderRadius:4},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}},
+          tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:'#9099b0',font:{size:10}}},
+          y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}}
+        },
+        animation:{onComplete:function(){
+          const chart=this;const ctx=chart.ctx;
+          ctx.font='10px "Noto Sans SC"';ctx.textAlign='center';
+          chart.data.datasets.forEach((ds,di)=>{
+            chart.getDatasetMeta(di).data.forEach((bar,i)=>{
+              const v=ds.data[i];
+              if(v>0){ctx.fillStyle='#e8eaf0';ctx.fillText(fmt(v),bar.x,bar.y-4);}
+            });
+          });
+        }}
+      }
+    });
+
     const costLabels=['技术开支','运营开支','商务开支','渠道开支','其他开支','充值损耗','广告损耗'];
     const costVals=[expT,expO,expB,expCh,expOt,lossC,lossA];
     const costPrev=[p_expT,p_expO,p_expB,p_expCh,p_expOt,p_lossC,p_lossA];
     const costColors=['#60a5fa','#4ade80','#a78bfa','#fbbf24','#2dd4bf','#f87171','#fb923c'];
-    mkChart('chartCostPie', pieOpts(costLabels,costVals,costColors));
-    mkChart('chartCostBar', hbarOpts(costLabels,[{label:'实际金额',data:costVals,backgroundColor:costColors.map(c=>c+'bb'),borderColor:costColors,borderWidth:1,borderRadius:4}]));
-    mkChart('chartCostMom', hbarOpts(costLabels,[
-      {label:'本月',data:costVals,backgroundColor:'rgba(248,113,113,0.7)',borderRadius:4},
-      {label:'上月',data:costPrev,backgroundColor:'rgba(248,113,113,0.25)',borderRadius:4},
-    ]));
+
+    // 成本结构占比 — 饼图显示占比数字
+    mkChart('chartCostPie',{
+      type:'doughnut',
+      data:{labels:costLabels,datasets:[{data:costVals,backgroundColor:costColors,borderColor:'rgba(255,255,255,0.05)',borderWidth:1,hoverOffset:6}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'right',labels:{color:'#9099b0',font:{size:11},boxWidth:12}},
+          tooltip:{...tp,callbacks:{label:c=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);return`${c.label}: ${fmt(c.raw)} (${fmtPct(tot>0?c.raw/tot*100:0)})`;}}}
+        },
+        animation:{onComplete:function(){
+          const chart=this;const ctx=chart.ctx;
+          const tot=costVals.reduce((a,b)=>a+b,0);
+          if(!tot)return;
+          ctx.font='bold 11px "Noto Sans SC"';ctx.textAlign='center';ctx.textBaseline='middle';
+          chart.getDatasetMeta(0).data.forEach((arc,i)=>{
+            const v=costVals[i];if(!v)return;
+            const pct=v/tot*100;if(pct<3)return;
+            const angle=(arc.startAngle+arc.endAngle)/2;
+            const r=(arc.innerRadius+arc.outerRadius)/2;
+            const x=arc.x+Math.cos(angle)*r, y=arc.y+Math.sin(angle)*r;
+            ctx.fillStyle='#fff';ctx.fillText(fmtPct(pct),x,y);
+          });
+        }}
+      }
+    });
+
+    // 成本开支 — 横向柱，显示金额数字
+    mkChart('chartCostBar',{
+      type:'bar',
+      data:{labels:costLabels,datasets:[{label:'实际金额',data:costVals,backgroundColor:costColors.map(c=>c+'bb'),borderColor:costColors,borderWidth:1,borderRadius:4}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},
+          tooltip:{...tp,callbacks:{label:c=>`${fmt(c.raw)}`}}},
+        scales:{
+          x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}},
+          y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}
+        },
+        animation:{onComplete:function(){
+          const chart=this;const ctx=chart.ctx;
+          ctx.font='11px "Noto Sans SC"';ctx.fillStyle='#e8eaf0';ctx.textAlign='left';
+          chart.data.datasets.forEach((_,di)=>{
+            chart.getDatasetMeta(di).data.forEach((bar,i)=>{
+              const v=chart.data.datasets[di].data[i];
+              if(v>0)ctx.fillText(fmt(v),bar.x+4,bar.y+4);
+            });
+          });
+        }}
+      }
+    });
+
+    // 成本本月 vs 上月对比 — 竖直条图，显示金额数字
+    mkChart('chartCostMom',{
+      type:'bar',
+      data:{labels:costLabels,datasets:[
+        {label:'本月',data:costVals,backgroundColor:'rgba(248,113,113,0.8)',borderRadius:4},
+        {label:'上月',data:costPrev,backgroundColor:'rgba(248,113,113,0.25)',borderRadius:4},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}},
+          tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:'#9099b0',font:{size:10},maxRotation:35}},
+          y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}}
+        },
+        animation:{onComplete:function(){
+          const chart=this;const ctx=chart.ctx;
+          ctx.font='10px "Noto Sans SC"';ctx.textAlign='center';
+          chart.data.datasets.forEach((ds,di)=>{
+            chart.getDatasetMeta(di).data.forEach((bar,i)=>{
+              const v=ds.data[i];
+              if(v>0){ctx.fillStyle='#e8eaf0';ctx.fillText(fmt(v),bar.x,bar.y-4);}
+            });
+          });
+        }}
+      }
+    });
   },100);
 }
 
