@@ -15,7 +15,6 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-/* Header */
 header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .logo{display:flex;align-items:center;gap:10px;}
 .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,#60a5fa,#a78bfa);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;}
@@ -26,7 +25,6 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28p
 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 #upd{font-size:11px;color:var(--text3);}
-/* Filter */
 .filter-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .quick-btns{display:flex;gap:4px;}
 .qbtn{padding:5px 14px;border-radius:6px;border:1px solid var(--border2);background:transparent;font-size:12px;color:var(--text2);cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all 0.15s;}
@@ -38,11 +36,9 @@ header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28p
 .date-input:focus{border-color:var(--blue);}
 .confirm-btn{padding:5px 14px;border-radius:6px;background:var(--blue);border:none;font-size:12px;color:#fff;font-weight:500;cursor:pointer;font-family:'Noto Sans SC',sans-serif;}
 .range-label{font-size:11px;color:var(--text3);}
-/* Main */
 main{padding:20px 28px;max-width:1440px;margin:0 auto;}
 .sec{font-size:12px;font-weight:500;color:var(--text3);margin-bottom:12px;letter-spacing:0.06em;display:flex;align-items:center;gap:8px;}
 .sec::before{content:'';width:3px;height:12px;background:var(--blue);border-radius:2px;display:inline-block;}
-/* KPI 5-col */
 .kg5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px;}
 .kg3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
 .kg2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px;}
@@ -57,8 +53,7 @@ main{padding:20px 28px;max-width:1440px;margin:0 auto;}
 .kc.c-teal::before{background:linear-gradient(90deg,#2dd4bf,#60a5fa);}
 .kc.c-orange::before{background:linear-gradient(90deg,#fb923c,#f87171);}
 .kl{font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:500;}
-.kv{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-0.5px;color:var(--text);}
-.kv-sm{font-size:16px;}
+.kv{font-size:17px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-0.3px;color:var(--text);}
 .kmeta{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
 .kmeta-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;}
 .kmeta-label{color:var(--text3);}
@@ -67,15 +62,10 @@ main{padding:20px 28px;max-width:1440px;margin:0 auto;}
 .neg{color:var(--red)!important;}
 .neu{color:var(--text2)!important;}
 .hi-a{color:var(--amber);}
-/* Chart cards */
 .chart-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
-.chart-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;}
-.chart-row-32{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:24px;}
-.chart-row-23{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:24px;}
 .cc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
 .ct{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
 .cs{font-size:11px;color:var(--text3);margin-bottom:14px;}
-/* Progress bars (horizontal) */
 .prog-list{display:flex;flex-direction:column;gap:14px;margin-top:4px;}
 .prog-item{}
 .prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
@@ -91,13 +81,11 @@ main{padding:20px 28px;max-width:1440px;margin:0 auto;}
 .bar-amber{background:linear-gradient(90deg,#fbbf24,#f59e0b);}
 .bar-purple{background:linear-gradient(90deg,#a78bfa,#ec4899);}
 .bar-teal{background:linear-gradient(90deg,#2dd4bf,#60a5fa);}
-/* Scrollbar */
 ::-webkit-scrollbar{width:6px;height:6px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
 footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);margin-top:8px;}
 footer a{color:var(--text3);text-decoration:none;}
-.err-banner{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:10px 16px;font-size:12px;color:var(--amber);margin-bottom:16px;}
 </style>
 </head>
 <body>
@@ -130,9 +118,7 @@ footer a{color:var(--text3);text-decoration:none;}
   <div class="range-label" id="range-label"></div>
 </div>
 
-<main id="main-content">
-  <!-- 渲染区 -->
-</main>
+<main id="main-content"></main>
 
 <footer>
   数据来源：Google Sheets · 领航财务BI模版 · 每60秒自动刷新 ·
@@ -140,59 +126,72 @@ footer a{color:var(--text3);text-decoration:none;}
 </footer>
 
 <script>
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 // 配置
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 const SHEET_ID   = '1JyXWDifCSfqXNVOwiS4xvLfQpmlLhW-GFsjSsqzJ7TY';
-const GID_DAILY  = '877653223';   // 日数据汇整
-const GID_BUDGET = '1005558888';  // 预算/目标
-const GID_ADTYPE = '1130613369';  // 广告类型明细
+const GID_DAILY  = '287726551';
+const GID_BUDGET = '1005558888';
+const GID_AD     = '100107827';
 const REFRESH_MS = 60000;
 
-// 日数据列索引 (0-based, 含空列)
+// 日数据列索引（0-based，含空列）
+// 列0=空, 1=月份, 2=日期, 3=理论收入, 4=理论支出, 5=理论毛利
+// 6=实际收入, 7=实际支出, 8=实际损耗, 9=实际毛利
+// 10-13=空/理论收入细项, 14=充值, 15=广告, 16=其他, 17=合计
+// 31=通道损耗, 32=广告损耗
+// 34=技术, 35=运营, 36=商务, 37=渠道, 38=其他支出, 39=合计支出
 const C = {
-  date:1, inc_charge:5, inc_ad:6, inc_other:7, inc_total:8,
-  loss_channel:21, loss_ad:22,
-  exp_tech:24, exp_ops:25, exp_biz:26, exp_channel:27, exp_other:28, exp_total:29,
-  revenue:31, expense:32, profit:33
+  month:1, date:2,
+  actual_inc:6, actual_exp:7, actual_loss:8, actual_profit:9,
+  inc_charge:14, inc_ad:15, inc_other:16, inc_total:17,
+  loss_channel:31, loss_ad:32,
+  exp_tech:34, exp_ops:35, exp_biz:36, exp_channel:37, exp_other:38, exp_total:39
 };
 
-// 3月预算（从预算Sheet读取，暂时硬编码，后续可动态读取）
-const BUDGET = {
-  inc_charge: 27278000, inc_ad: 38000000, inc_other: 0, inc_total: 65278000,
-  exp_tech: 5824000, exp_ops: 2956000, exp_biz: 1200000, exp_channel: 17500000, exp_other: 0, exp_total: 27480000,
-  profit_target: 10520000
-};
-
-// 广告类型颜色
-const AD_TYPES = ['棋牌','约炮','播放器','直播','春药','成人游戏'];
+// 广告类型
+const AD_TYPES  = ['棋牌','约炮','播放器','直播','春药','成人游戏'];
 const AD_COLORS = ['#60a5fa','#f87171','#4ade80','#fbbf24','#a78bfa','#2dd4bf'];
 
-// ═══════════════════════════════════════════
+// 3月预算（从预算Sheet结构读取，暂时按已知数据硬编码）
+const BUDGET = {
+  inc_charge:27278000, inc_ad:38000000, inc_other:0, inc_total:65278000,
+  exp_tech:5824000, exp_ops:2956000, exp_biz:1200000, exp_channel:17500000, exp_other:0, exp_total:27480000,
+  profit_target:10520000
+};
+
+// ═══════════════════════════════════
 // 状态
-// ═══════════════════════════════════════════
-let allRows=[], adTypeRows=[], filterFrom=null, filterTo=null;
+// ═══════════════════════════════════
+let allRows=[], adRows=[], filterFrom=null, filterTo=null;
 let charts={};
 
-// ═══════════════════════════════════════════
-// 工具函数
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
+// 工具
+// ═══════════════════════════════════
 const toYMD = d => {
   const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 };
+
+// 实数格式：1,234,567
 const fmt = v => {
-  if(v===null||v===undefined||isNaN(v)||v===0)return'0';
-  const n=parseFloat(v);
-  if(Math.abs(n)>=10000000)return(n/10000000).toFixed(2)+'千万';
-  if(Math.abs(n)>=10000)return(n/10000).toFixed(1)+'万';
-  return n.toLocaleString('zh-CN',{maximumFractionDigits:0});
+  if(v===null||v===undefined||isNaN(v))return'0';
+  const n=Math.round(parseFloat(v));
+  return n.toLocaleString('zh-CN');
 };
+
+const fmtDec = v => {
+  if(!v||isNaN(v))return'0';
+  return parseFloat(v).toLocaleString('zh-CN',{minimumFractionDigits:0,maximumFractionDigits:2});
+};
+
 const fmtPct = v => {
   if(!v||isNaN(v))return'0.00%';
   return parseFloat(v).toFixed(2)+'%';
 };
-const pctOf = (a,b) => b&&b!==0 ? (a/b*100) : 0;
+
+const pctOf = (a,b) => b&&b!==0?(a/b*100):0;
 const pctStr = (a,b) => fmtPct(pctOf(a,b));
 const sum = (rows,k) => rows.reduce((s,r)=>s+(r[k]||0),0);
 const posClass = v => v>0?'pos':v<0?'neg':'neu';
@@ -200,9 +199,12 @@ const posClass = v => v>0?'pos':v<0?'neg':'neu';
 function parseGSheetDate(v){
   if(!v)return null;
   const s=String(v);
+  // Date(2026,2,1) 格式
   const m=s.match(/Date\((\d+),(\d+),(\d+)\)/);
   if(m)return new Date(parseInt(m[1]),parseInt(m[2]),parseInt(m[3]));
-  if(s.match(/^\d{4}-\d{1,2}-\d{1,2}$/)){const p=s.split('-');return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));}
+  // 2026-1-1 格式
+  const m2=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m2)return new Date(parseInt(m2[1]),parseInt(m2[2])-1,parseInt(m2[3]));
   return null;
 }
 
@@ -211,9 +213,9 @@ function startOfLastMonth(){const d=new Date();d.setDate(1);d.setMonth(d.getMont
 function endOfLastMonth(){const d=new Date();d.setDate(0);d.setHours(23,59,59,999);return d;}
 function startOfWeek(){const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));d.setHours(0,0,0,0);return d;}
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 // 数据获取
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 async function fetchGID(gid){
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${gid}&nocache=${Date.now()}`;
   const resp=await fetch(url);
@@ -225,50 +227,63 @@ function parseDailyRows(json){
   const result=[];
   for(const row of json.table.rows){
     const c=row.c||[];
-    const cell=c[C.date];
-    if(!cell?.v)continue;
-    const s=String(cell.v);
-    if(!s.startsWith('Date('))continue;
+    // 月份列必须是数字(1-12)
+    const monthCell=c[C.month];
+    if(!monthCell?.v)continue;
+    const monthVal=parseFloat(monthCell.v);
+    if(isNaN(monthVal)||monthVal<1||monthVal>12)continue;
+    // 日期列
+    const dateCell=c[C.date];
+    if(!dateCell?.v)continue;
+    const dateStr=String(dateCell.v);
+    // 跳过合计行
+    if(dateStr.includes('合计')||dateStr.includes('-'))continue;
+    const dateObj=parseGSheetDate(dateStr);
+    if(!dateObj)continue;
     const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
-    const dateObj=parseGSheetDate(s);
     result.push({
-      date: cell.f||toYMD(dateObj),
-      ymd:  dateObj?toYMD(dateObj):null,
-      inc_charge:g(C.inc_charge), inc_ad:g(C.inc_ad),
-      inc_other:g(C.inc_other),   inc_total:g(C.inc_total),
-      loss_channel:g(C.loss_channel), loss_ad:g(C.loss_ad),
-      exp_tech:g(C.exp_tech), exp_ops:g(C.exp_ops),
-      exp_biz:g(C.exp_biz),   exp_channel:g(C.exp_channel),
-      exp_other:g(C.exp_other), exp_total:g(C.exp_total),
-      profit:g(C.profit),
+      month:   monthVal,
+      date:    dateCell.f || toYMD(dateObj),
+      ymd:     toYMD(dateObj),
+      actual_inc:    g(C.actual_inc),
+      actual_exp:    g(C.actual_exp),
+      actual_profit: g(C.actual_profit),
+      inc_charge:    g(C.inc_charge),
+      inc_ad:        g(C.inc_ad),
+      inc_other:     g(C.inc_other),
+      inc_total:     g(C.inc_total),
+      loss_channel:  g(C.loss_channel),
+      loss_ad:       g(C.loss_ad),
+      exp_tech:      g(C.exp_tech),
+      exp_ops:       g(C.exp_ops),
+      exp_biz:       g(C.exp_biz),
+      exp_channel:   g(C.exp_channel),
+      exp_other:     g(C.exp_other),
+      exp_total:     g(C.exp_total),
     });
   }
   return result;
 }
 
-function parseAdTypeRows(json){
-  // 列: 0=空,1=月份,2=日期,3=产品归属,4=广告类型,5=RMB收款
+function parseAdRows(json){
   const result=[];
   for(const row of json.table.rows){
     const c=row.c||[];
     const dateCell=c[2];
     const typeCell=c[4];
     const rmbCell =c[5];
-    if(!dateCell?.v||!typeCell?.v||!rmbCell?.v)continue;
+    if(!dateCell?.v||!typeCell?.v||rmbCell?.v==null)continue;
     const dateObj=parseGSheetDate(String(dateCell.v));
     if(!dateObj)continue;
-    result.push({
-      ymd:  toYMD(dateObj),
-      type: String(typeCell.v),
-      rmb:  parseFloat(rmbCell.v)||0,
-    });
+    const rmb=parseFloat(rmbCell.v)||0;
+    result.push({ymd:toYMD(dateObj), type:String(typeCell.v), rmb});
   }
   return result;
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 // 筛选
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 function filtered(){
   return allRows.filter(r=>{
     if(!r.ymd)return true;
@@ -277,22 +292,40 @@ function filtered(){
     return true;
   });
 }
-function filteredAdType(){
-  return adTypeRows.filter(r=>{
+
+function filteredAd(){
+  return adRows.filter(r=>{
     if(filterFrom&&r.ymd<filterFrom)return false;
     if(filterTo  &&r.ymd>filterTo  )return false;
     return true;
   });
 }
 
-// ═══════════════════════════════════════════
+// 获取上月同期数据
+function getPrevMonthRows(rows){
+  if(!filterFrom||!filterTo)return[];
+  const from=new Date(filterFrom), to=new Date(filterTo);
+  const prevFrom=toYMD(new Date(from.getFullYear(),from.getMonth()-1,from.getDate()));
+  const prevTo  =toYMD(new Date(to.getFullYear(),to.getMonth()-1,to.getDate()));
+  return allRows.filter(r=>r.ymd&&r.ymd>=prevFrom&&r.ymd<=prevTo);
+}
+
+function getPrevAdRows(){
+  if(!filterFrom||!filterTo)return[];
+  const from=new Date(filterFrom), to=new Date(filterTo);
+  const prevFrom=toYMD(new Date(from.getFullYear(),from.getMonth()-1,from.getDate()));
+  const prevTo  =toYMD(new Date(to.getFullYear(),to.getMonth()-1,to.getDate()));
+  return adRows.filter(r=>r.ymd>=prevFrom&&r.ymd<=prevTo);
+}
+
+// ═══════════════════════════════════
 // 时间筛选
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 function setQuick(btn,type){
   document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   const t=new Date();
-  if(type==='today'){filterFrom=filterTo=toYMD(t);}
+  if(type==='today')filterFrom=filterTo=toYMD(t);
   else if(type==='yesterday'){const y=new Date(t);y.setDate(y.getDate()-1);filterFrom=filterTo=toYMD(y);}
   else if(type==='week'){filterFrom=toYMD(startOfWeek());filterTo=toYMD(t);}
   else if(type==='month'){filterFrom=toYMD(startOfMonth());filterTo=toYMD(t);}
@@ -311,31 +344,52 @@ function updateLabel(){
   document.getElementById('range-label').textContent=filterFrom&&filterTo?`${filterFrom} ~ ${filterTo}`:'';
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 // 图表工具
-// ═══════════════════════════════════════════
-function makeChart(id,config){
+// ═══════════════════════════════════
+const tp={backgroundColor:'rgba(26,29,39,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#9099b0',bodyColor:'#e8eaf0'};
+
+function mkChart(id,cfg){
   if(charts[id])charts[id].destroy();
   const ctx=document.getElementById(id);
   if(!ctx)return;
-  charts[id]=new Chart(ctx,config);
+  charts[id]=new Chart(ctx,cfg);
 }
-const chartDefaults={
-  color:'#9099b0',
-  plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}}},
-  scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10}}},
-          y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10}}}}
-};
-const tooltipDefaults={backgroundColor:'rgba(26,29,39,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#9099b0',bodyColor:'#e8eaf0'};
 
-// ═══════════════════════════════════════════
+function pieOpts(labels,data,colors){
+  return{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderColor:'rgba(255,255,255,0.05)',borderWidth:1,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{color:'#9099b0',font:{size:11},boxWidth:12}},
+        tooltip:{...tp,callbacks:{label:c=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);return `${c.label}: ${fmt(c.raw)} (${fmtPct(tot>0?c.raw/tot*100:0)})`;}}}}}};
+}
+
+function hbarOpts(labels,datasets,fmtFn){
+  return{type:'bar',data:{labels,datasets},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:datasets.length>1,labels:{color:'#9099b0',font:{size:11}}},tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label||''}: ${(fmtFn||fmt)(c.raw)}`}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>(fmtFn||fmt)(v)}},y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}}}};
+}
+
+// ═══════════════════════════════════
+// 环比箭头
+// ═══════════════════════════════════
+function momArrow(cur,prev){
+  if(!prev||prev===0)return`<span class="neu">—</span>`;
+  const p=((cur-prev)/Math.abs(prev)*100);
+  const s=p.toFixed(1);
+  return p>=0?`<span class="pos">▲${s}%</span>`:`<span class="neg">▼${Math.abs(parseFloat(s))}%</span>`;
+}
+
+// ═══════════════════════════════════
 // 渲染
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 function render(){
   const rows=filtered();
-  const adRows=filteredAdType();
+  const prev=getPrevMonthRows(rows);
+  const adCur=filteredAd();
+  const adPrv=getPrevAdRows();
 
-  // 汇总数据
+  // 当期汇总
   const inc    = sum(rows,'inc_total');
   const incC   = sum(rows,'inc_charge');
   const incA   = sum(rows,'inc_ad');
@@ -348,26 +402,24 @@ function render(){
   const expOt  = sum(rows,'exp_other');
   const lossC  = sum(rows,'loss_channel');
   const lossA  = sum(rows,'loss_ad');
-  const prof   = sum(rows,'profit');
+  const prof   = sum(rows,'actual_profit');
   const margin = pctOf(prof,inc);
 
-  // 环比（上月同期，暂时用0）
-  const mom_prof=0, mom_inc=0, mom_exp=0, mom_incC=0, mom_incA=0, mom_incO=0;
-  const mom_expT=0, mom_expO=0, mom_expB=0, mom_expCh=0, mom_expOt=0;
-  const mom_lossC=0, mom_lossA=0;
+  // 上期汇总
+  const p_inc=sum(prev,'inc_total'), p_incC=sum(prev,'inc_charge'), p_incA=sum(prev,'inc_ad');
+  const p_exp=sum(prev,'exp_total'), p_expT=sum(prev,'exp_tech'), p_expO=sum(prev,'exp_ops');
+  const p_expB=sum(prev,'exp_biz'), p_expCh=sum(prev,'exp_channel'), p_expOt=sum(prev,'exp_other');
+  const p_lossC=sum(prev,'loss_channel'), p_lossA=sum(prev,'loss_ad'), p_prof=sum(prev,'actual_profit');
 
   // 广告类型汇总
   const adByType={};
   AD_TYPES.forEach(t=>adByType[t]=0);
-  adRows.forEach(r=>{ if(adByType[r.type]!==undefined)adByType[r.type]+=r.rmb; });
-  const adTypeVals=AD_TYPES.map(t=>adByType[t]);
-
-  // 月环比箭头
-  const momArrow=(v,prev)=>{
-    if(!prev||prev===0)return`<span class="neu">—</span>`;
-    const pct=((v-prev)/Math.abs(prev)*100).toFixed(1);
-    return pct>=0?`<span class="pos">▲${pct}%</span>`:`<span class="neg">▼${Math.abs(pct)}%</span>`;
-  };
+  adCur.forEach(r=>{if(adByType[r.type]!==undefined)adByType[r.type]+=r.rmb;});
+  const adByTypePrev={};
+  AD_TYPES.forEach(t=>adByTypePrev[t]=0);
+  adPrv.forEach(r=>{if(adByTypePrev[r.type]!==undefined)adByTypePrev[r.type]+=r.rmb;});
+  const adVals=AD_TYPES.map(t=>adByType[t]);
+  const adValsPrev=AD_TYPES.map(t=>adByTypePrev[t]);
 
   const main=document.getElementById('main-content');
   main.innerHTML=`
@@ -379,29 +431,30 @@ function render(){
       <div class="kv">${fmt(prof)}</div>
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">毛利率</span><span class="kmeta-val ${posClass(margin)}">${fmtPct(margin)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(prof,mom_prof)}</div>
-        <div class="kmeta-row"><span class="kmeta-label">目标达成</span><span class="kmeta-val ${posClass(prof-BUDGET.profit_target)}">${pctStr(prof,BUDGET.profit_target)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(prof,p_prof)}</div>
       </div>
     </div>
     <div class="kc c-green">
       <div class="kl">总收入</div>
       <div class="kv">${fmt(inc)}</div>
       <div class="kmeta">
-        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(inc,mom_inc)}</div>
-        <div class="kmeta-row"><span class="kmeta-label">目标达成</span><span class="kmeta-val">${pctStr(inc,BUDGET.inc_total)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(inc,p_inc)}</div>
+        <div class="kmeta-row"><span class="kmeta-label">充值</span><span class="kmeta-val">${fmt(incC)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">广告</span><span class="kmeta-val">${fmt(incA)}</span></div>
       </div>
     </div>
     <div class="kc c-red">
       <div class="kl">总支出</div>
       <div class="kv">${fmt(exp)}</div>
       <div class="kmeta">
-        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(exp,mom_exp)}</div>
-        <div class="kmeta-row"><span class="kmeta-label">预算消耗</span><span class="kmeta-val">${pctStr(exp,BUDGET.exp_total)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(exp,p_exp)}</div>
+        <div class="kmeta-row"><span class="kmeta-label">渠道</span><span class="kmeta-val">${fmt(expCh)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">技术</span><span class="kmeta-val">${fmt(expT)}</span></div>
       </div>
     </div>
     <div class="kc c-amber">
       <div class="kl">目标销售达成率</div>
-      <div class="kv kv-sm">${pctStr(inc,BUDGET.inc_total)}</div>
+      <div class="kv">${pctStr(inc,BUDGET.inc_total)}</div>
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">实际</span><span class="kmeta-val">${fmt(inc)}</span></div>
         <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(BUDGET.inc_total)}</span></div>
@@ -409,7 +462,7 @@ function render(){
     </div>
     <div class="kc c-purple">
       <div class="kl">预算消耗使用率</div>
-      <div class="kv kv-sm">${pctStr(exp,BUDGET.exp_total)}</div>
+      <div class="kv">${pctStr(exp,BUDGET.exp_total)}</div>
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">实际</span><span class="kmeta-val">${fmt(exp)}</span></div>
         <div class="kmeta-row"><span class="kmeta-label">预算</span><span class="kmeta-val">${fmt(BUDGET.exp_total)}</span></div>
@@ -426,7 +479,7 @@ function render(){
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${pctStr(incC,BUDGET.inc_charge)}</span></div>
         <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(BUDGET.inc_charge)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incC,mom_incC)}</div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incC,p_incC)}</div>
       </div>
     </div>
     <div class="kc c-green">
@@ -435,7 +488,7 @@ function render(){
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${pctStr(incA,BUDGET.inc_ad)}</span></div>
         <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(BUDGET.inc_ad)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incA,mom_incA)}</div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incA,p_incA)}</div>
       </div>
     </div>
     <div class="kc c-teal">
@@ -443,7 +496,7 @@ function render(){
       <div class="kv">${fmt(incO)}</div>
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${BUDGET.inc_other>0?pctStr(incO,BUDGET.inc_other):'—'}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incO,mom_incO)}</div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incO,sum(prev,'inc_other'))}</div>
       </div>
     </div>
   </div>
@@ -452,19 +505,19 @@ function render(){
   <div class="sec">支出指标</div>
   <div class="kg5">
     ${[
-      ['技术开支','c-red',expT,BUDGET.exp_tech,mom_expT],
-      ['运营开支','c-red',expO,BUDGET.exp_ops,mom_expO],
-      ['商务开支','c-red',expB,BUDGET.exp_biz,mom_expB],
-      ['渠道开支','c-red',expCh,BUDGET.exp_channel,mom_expCh],
-      ['其他开支','c-orange',expOt,BUDGET.exp_other,mom_expOt],
-    ].map(([label,cls,val,budget,mom])=>`
+      ['技术开支','c-red',expT,BUDGET.exp_tech,p_expT],
+      ['运营开支','c-red',expO,BUDGET.exp_ops,p_expO],
+      ['商务开支','c-red',expB,BUDGET.exp_biz,p_expB],
+      ['渠道开支','c-red',expCh,BUDGET.exp_channel,p_expCh],
+      ['其他开支','c-orange',expOt,BUDGET.exp_other,p_expOt],
+    ].map(([label,cls,val,budget,pval])=>`
       <div class="kc ${cls}">
         <div class="kl">${label}</div>
-        <div class="kv kv-sm">${fmt(val)}</div>
+        <div class="kv">${fmt(val)}</div>
         <div class="kmeta">
           <div class="kmeta-row"><span class="kmeta-label">预算</span><span class="kmeta-val">${fmt(budget)}</span></div>
           <div class="kmeta-row"><span class="kmeta-label">使用率</span><span class="kmeta-val ${budget>0&&val/budget>0.9?'neg':''}">${budget>0?pctStr(val,budget):'—'}</span></div>
-          <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(val,mom)}</div>
+          <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(val,pval)}</div>
         </div>
       </div>`).join('')}
   </div>
@@ -477,7 +530,7 @@ function render(){
       <div class="kv">${fmt(lossC)}</div>
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">占充值收入</span><span class="kmeta-val hi-a">${pctStr(lossC,incC)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(lossC,mom_lossC)}</div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(lossC,p_lossC)}</div>
       </div>
     </div>
     <div class="kc c-amber">
@@ -485,7 +538,7 @@ function render(){
       <div class="kv">${fmt(lossA)}</div>
       <div class="kmeta">
         <div class="kmeta-row"><span class="kmeta-label">占广告收入</span><span class="kmeta-val hi-a">${pctStr(lossA,incA)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(lossA,mom_lossA)}</div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(lossA,p_lossA)}</div>
       </div>
     </div>
   </div>
@@ -496,23 +549,15 @@ function render(){
     <div class="ct">收入目标执行率</div>
     <div class="cs">实际收入 vs 月度目标</div>
     <div class="prog-list">
-      ${[
-        ['充值收入',incC,BUDGET.inc_charge,'bar-green'],
-        ['广告收入',incA,BUDGET.inc_ad,'bar-blue'],
-        ['其他收入',incO,BUDGET.inc_other,'bar-teal'],
-      ].map(([name,val,target,barCls])=>{
-        const pct=Math.min(pctOf(val,target),150);
-        const pctDisplay=target>0?fmtPct(pctOf(val,target)):'—';
+      ${[['充值收入',incC,BUDGET.inc_charge,'bar-green'],['广告收入',incA,BUDGET.inc_ad,'bar-blue'],['其他收入',incO,BUDGET.inc_other,'bar-teal']].map(([name,val,target,cls])=>{
+        const p=target>0?Math.min(pctOf(val,target),150):0;
         const over=target>0&&val>target;
         return`<div class="prog-item">
           <div class="prog-header">
             <span class="prog-name">${name}</span>
-            <div class="prog-vals">
-              <span class="prog-pct ${over?'pos':''}">${pctDisplay}</span>
-              <span class="prog-num">${fmt(val)} / ${fmt(target)}</span>
-            </div>
+            <div class="prog-vals"><span class="prog-pct ${over?'pos':''}">${target>0?fmtPct(pctOf(val,target)):'—'}</span><span class="prog-num">${fmt(val)} / ${fmt(target)}</span></div>
           </div>
-          <div class="prog-bg"><div class="prog-bar ${barCls}" style="width:${Math.min(pct,100)}%"></div></div>
+          <div class="prog-bg"><div class="prog-bar ${cls}" style="width:${Math.min(p,100)}%"></div></div>
         </div>`;
       }).join('')}
     </div>
@@ -524,25 +569,15 @@ function render(){
     <div class="ct">支出消耗使用率</div>
     <div class="cs">实际支出 vs 月度预算</div>
     <div class="prog-list">
-      ${[
-        ['技术开支',expT,BUDGET.exp_tech,'bar-blue'],
-        ['运营开支',expO,BUDGET.exp_ops,'bar-green'],
-        ['商务开支',expB,BUDGET.exp_biz,'bar-purple'],
-        ['渠道开支',expCh,BUDGET.exp_channel,'bar-amber'],
-        ['其他开支',expOt,BUDGET.exp_other,'bar-teal'],
-      ].map(([name,val,budget,barCls])=>{
-        const pct=budget>0?Math.min(pctOf(val,budget),150):0;
-        const pctDisplay=budget>0?fmtPct(pctOf(val,budget)):'—';
+      ${[['技术开支',expT,BUDGET.exp_tech,'bar-blue'],['运营开支',expO,BUDGET.exp_ops,'bar-green'],['商务开支',expB,BUDGET.exp_biz,'bar-purple'],['渠道开支',expCh,BUDGET.exp_channel,'bar-amber'],['其他开支',expOt,BUDGET.exp_other,'bar-teal']].map(([name,val,budget,cls])=>{
+        const p=budget>0?Math.min(pctOf(val,budget),150):0;
         const over=budget>0&&val>budget;
         return`<div class="prog-item">
           <div class="prog-header">
             <span class="prog-name">${name}</span>
-            <div class="prog-vals">
-              <span class="prog-pct ${over?'neg':''}">${pctDisplay}</span>
-              <span class="prog-num">${fmt(val)} / ${fmt(budget)}</span>
-            </div>
+            <div class="prog-vals"><span class="prog-pct ${over?'neg':''}">${budget>0?fmtPct(pctOf(val,budget)):'—'}</span><span class="prog-num">${fmt(val)} / ${fmt(budget)}</span></div>
           </div>
-          <div class="prog-bg"><div class="prog-bar ${over?'bar-red':barCls}" style="width:${Math.min(pct,100)}%"></div></div>
+          <div class="prog-bg"><div class="prog-bar ${over?'bar-red':cls}" style="width:${Math.min(p,100)}%"></div></div>
         </div>`;
       }).join('')}
     </div>
@@ -564,7 +599,7 @@ function render(){
   </div>
   <div class="cc" style="margin-bottom:14px">
     <div class="ct">广告收入类型明细</div>
-    <div class="cs">各类型收入金额</div>
+    <div class="cs">各类型收入金额（RMB）</div>
     <div style="height:200px"><canvas id="chartAdTypeBar"></canvas></div>
   </div>
   <div class="cc" style="margin-bottom:24px">
@@ -591,101 +626,54 @@ function render(){
     <div class="ct">成本本月 vs 上月对比</div>
     <div class="cs">各项支出环比变化</div>
     <div style="height:200px"><canvas id="chartCostMom"></canvas></div>
-  </div>
-  `;
+  </div>`;
 
-  // ── 图表渲染 ──
+  // ── 图表 ──
   setTimeout(()=>{
-    const pieOpts=(labels,data,colors)=>({
-      type:'doughnut',
-      data:{labels,datasets:[{data,backgroundColor:colors,borderColor:'rgba(255,255,255,0.05)',borderWidth:1,hoverOffset:6}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#9099b0',font:{size:11},boxWidth:12}},tooltip:{...tooltipDefaults,callbacks:{label:c=>`${c.label}: ${fmt(c.raw)} (${fmtPct(c.parsed/c.dataset.data.reduce((a,b)=>a+b,0)*100)})`}}}}
-    });
-
-    const hbarOpts=(labels,datasets)=>({
-      type:'bar',
-      data:{labels,datasets},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:datasets.length>1,labels:{color:'#9099b0',font:{size:11}}},tooltip:{...tooltipDefaults,callbacks:{label:c=>`${c.dataset.label||''}: ${fmt(c.raw)}`}}},
-        scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}},y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}}}
-    });
-
-    // ① 收入饼图
-    makeChart('chartIncPie', pieOpts(
-      ['充值收入','广告收入','其他收入'],
-      [incC,incA,incO],
-      ['#60a5fa','#4ade80','#2dd4bf']
-    ));
-
-    // ② 广告类型饼图
-    makeChart('chartAdTypePie', pieOpts(AD_TYPES, adTypeVals, AD_COLORS));
-
-    // ③ 广告类型横向柱状图
-    makeChart('chartAdTypeBar', hbarOpts(AD_TYPES,[{
-      label:'广告收入',
-      data:adTypeVals,
-      backgroundColor:AD_COLORS.map(c=>c+'bb'),
-      borderColor:AD_COLORS,
-      borderWidth:1,
-      borderRadius:4,
-    }]));
-
-    // ④ 广告类型环比（上月暂时为0）
-    makeChart('chartAdTypeMom', hbarOpts(AD_TYPES,[
-      {label:'本月',data:adTypeVals,backgroundColor:'rgba(96,165,250,0.7)',borderRadius:4},
-      {label:'上月',data:AD_TYPES.map(()=>0),backgroundColor:'rgba(96,165,250,0.2)',borderRadius:4},
+    mkChart('chartIncPie', pieOpts(['充值收入','广告收入','其他收入'],[incC,incA,incO],['#60a5fa','#4ade80','#2dd4bf']));
+    mkChart('chartAdTypePie', pieOpts(AD_TYPES,adVals,AD_COLORS));
+    mkChart('chartAdTypeBar', hbarOpts(AD_TYPES,[{label:'广告收入',data:adVals,backgroundColor:AD_COLORS.map(c=>c+'bb'),borderColor:AD_COLORS,borderWidth:1,borderRadius:4}]));
+    mkChart('chartAdTypeMom', hbarOpts(AD_TYPES,[
+      {label:'本月',data:adVals,backgroundColor:'rgba(96,165,250,0.7)',borderRadius:4},
+      {label:'上月',data:adValsPrev,backgroundColor:'rgba(96,165,250,0.25)',borderRadius:4},
     ]));
-
-    // ⑤ 成本饼图
     const costLabels=['技术开支','运营开支','商务开支','渠道开支','其他开支','充值损耗','广告损耗'];
     const costVals=[expT,expO,expB,expCh,expOt,lossC,lossA];
+    const costPrev=[p_expT,p_expO,p_expB,p_expCh,p_expOt,p_lossC,p_lossA];
     const costColors=['#60a5fa','#4ade80','#a78bfa','#fbbf24','#2dd4bf','#f87171','#fb923c'];
-    makeChart('chartCostPie', pieOpts(costLabels,costVals,costColors));
-
-    // ⑥ 成本横向柱状图
-    makeChart('chartCostBar', hbarOpts(costLabels,[{
-      label:'实际金额',
-      data:costVals,
-      backgroundColor:costColors.map(c=>c+'bb'),
-      borderColor:costColors,
-      borderWidth:1,
-      borderRadius:4,
-    }]));
-
-    // ⑦ 成本环比
-    makeChart('chartCostMom', hbarOpts(costLabels,[
+    mkChart('chartCostPie', pieOpts(costLabels,costVals,costColors));
+    mkChart('chartCostBar', hbarOpts(costLabels,[{label:'实际金额',data:costVals,backgroundColor:costColors.map(c=>c+'bb'),borderColor:costColors,borderWidth:1,borderRadius:4}]));
+    mkChart('chartCostMom', hbarOpts(costLabels,[
       {label:'本月',data:costVals,backgroundColor:'rgba(248,113,113,0.7)',borderRadius:4},
-      {label:'上月',data:costLabels.map(()=>0),backgroundColor:'rgba(248,113,113,0.2)',borderRadius:4},
+      {label:'上月',data:costPrev,backgroundColor:'rgba(248,113,113,0.25)',borderRadius:4},
     ]));
   },100);
 }
 
-// ═══════════════════════════════════════════
-// 数据刷新
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
+// 刷新
+// ═══════════════════════════════════
 async function refresh(){
   try{
-    const [dailyJson, adJson] = await Promise.all([
+    const [dailyJson,adJson]=await Promise.all([
       fetchGID(GID_DAILY),
-      fetchGID(GID_ADTYPE).catch(()=>({table:{rows:[]}}))
+      fetchGID(GID_AD).catch(()=>({table:{rows:[]}}))
     ]);
-    allRows = parseDailyRows(dailyJson);
-    adTypeRows = parseAdTypeRows(adJson);
+    allRows=parseDailyRows(dailyJson);
+    adRows=parseAdRows(adJson);
     render();
     document.getElementById('upd').textContent='最后更新 '+new Date().toLocaleTimeString('zh-CN');
-  } catch(e){
-    document.getElementById('main-content').innerHTML=
-      `<div style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);border-radius:10px;padding:20px;color:#f87171;margin:20px 0;">
-        ❌ 数据加载失败：${e.message}<br><br>请确认 Google Sheets 已设为公开可查看
-      </div>`;
-    // 即使数据加载失败，也用空数据渲染骨架
-    allRows=[]; adTypeRows=[];
+  }catch(e){
+    // 即使出错也渲染空骨架
+    allRows=[];adRows=[];
     render();
+    console.error(e);
   }
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 // 初始化
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════
 (function init(){
   const t=new Date();
   filterFrom=toYMD(startOfMonth());
