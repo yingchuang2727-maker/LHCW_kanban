@@ -670,143 +670,288 @@ function render(){
     <div style="height:200px"><canvas id="chartCostMom"></canvas></div>
   </div>`;
 
-  // ── 图表 ──
-  setTimeout(()=>{
-    mkChart('chartIncPie', pieOpts(['充值收入','广告收入','其他收入'],[incC,incA,incO],['#60a5fa','#4ade80','#2dd4bf']));
-    mkChart('chartAdTypePie', pieOpts(AD_TYPES,adVals,AD_COLORS));
+  // ── 伪3D插件 ──
+  // 竖柱3D顶面+侧面
+  const pseudo3DBar = {
+    id:'pseudo3DBar',
+    afterDatasetsDraw(chart){
+      const ctx=chart.ctx;
+      const DEPTH=8, SKEW=6;
+      chart.data.datasets.forEach((_,di)=>{
+        const meta=chart.getDatasetMeta(di);
+        if(meta.hidden)return;
+        meta.data.forEach((bar,i)=>{
+          const {x,y,width,base}=bar;
+          const v=chart.data.datasets[di].data[i];
+          if(!v||v<=0)return;
+          const col=chart.data.datasets[di].backgroundColor;
+          const baseCol=Array.isArray(col)?col[i]:col;
+          // 顶面
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(x-width/2, y);
+          ctx.lineTo(x-width/2+SKEW, y-DEPTH);
+          ctx.lineTo(x+width/2+SKEW, y-DEPTH);
+          ctx.lineTo(x+width/2, y);
+          ctx.closePath();
+          ctx.fillStyle=lighten(baseCol,40);
+          ctx.fill();
+          // 右侧面
+          ctx.beginPath();
+          ctx.moveTo(x+width/2, y);
+          ctx.lineTo(x+width/2+SKEW, y-DEPTH);
+          ctx.lineTo(x+width/2+SKEW, base-DEPTH);
+          ctx.lineTo(x+width/2, base);
+          ctx.closePath();
+          ctx.fillStyle=darken(baseCol,30);
+          ctx.fill();
+          ctx.restore();
+        });
+      });
+    }
+  };
 
-    // 广告收入类型明细 — 横向柱，显示金额数字
-    mkChart('chartAdTypeBar',{
-      type:'bar',
-      data:{labels:AD_TYPES,datasets:[{label:'广告收入',data:adVals,backgroundColor:AD_COLORS.map(c=>c+'bb'),borderColor:AD_COLORS,borderWidth:1,borderRadius:4}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},datalabels:{display:false},
-          tooltip:{...tp,callbacks:{label:c=>`${fmt(c.raw)}`}}},
-        scales:{
-          x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}},
-          y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}
-        },
-        animation:{onComplete:function(){
-          const chart=this;const ctx=chart.ctx;
-          ctx.font='11px "Noto Sans SC"';ctx.fillStyle='#e8eaf0';ctx.textAlign='left';
-          chart.data.datasets.forEach((_,di)=>{
-            chart.getDatasetMeta(di).data.forEach((bar,i)=>{
-              const v=chart.data.datasets[di].data[i];
-              if(v>0)ctx.fillText(fmt(v),bar.x+4,bar.y+4);
-            });
-          });
-        }}
-      }
+  // 横柱3D顶面+侧面
+  const pseudo3DHBar = {
+    id:'pseudo3DHBar',
+    afterDatasetsDraw(chart){
+      const ctx=chart.ctx;
+      const DEPTH=6, SKEW=5;
+      chart.data.datasets.forEach((_,di)=>{
+        const meta=chart.getDatasetMeta(di);
+        if(meta.hidden)return;
+        meta.data.forEach((bar,i)=>{
+          const {x,y,height,base}=bar;
+          const v=chart.data.datasets[di].data[i];
+          if(!v||v<=0)return;
+          const col=chart.data.datasets[di].backgroundColor;
+          const baseCol=Array.isArray(col)?col[i]:col;
+          // 顶面（右侧）
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(x, y-height/2);
+          ctx.lineTo(x+DEPTH, y-height/2-SKEW);
+          ctx.lineTo(x+DEPTH, y+height/2-SKEW);
+          ctx.lineTo(x, y+height/2);
+          ctx.closePath();
+          ctx.fillStyle=lighten(baseCol,40);
+          ctx.fill();
+          // 上侧面
+          ctx.beginPath();
+          ctx.moveTo(base, y-height/2);
+          ctx.lineTo(x, y-height/2);
+          ctx.lineTo(x+DEPTH, y-height/2-SKEW);
+          ctx.lineTo(base+DEPTH, y-height/2-SKEW);
+          ctx.closePath();
+          ctx.fillStyle=lighten(baseCol,20);
+          ctx.fill();
+          ctx.restore();
+        });
+      });
+    }
+  };
+
+  // 颜色工具
+  function lighten(hex,amt){
+    const r=parseInt(hex.slice(1,3)||'60',16),g=parseInt(hex.slice(3,5)||'a5',16),b=parseInt(hex.slice(5,7)||'fa',16);
+    return`rgba(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)},0.9)`;
+  }
+  function darken(hex,amt){
+    const r=parseInt(hex.slice(1,3)||'60',16),g=parseInt(hex.slice(3,5)||'a5',16),b=parseInt(hex.slice(5,7)||'fa',16);
+    return`rgba(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)},0.9)`;
+  }
+
+  // 绘制数字标签
+  function drawLabels(chart,horizontal){
+    const ctx=chart.ctx;
+    chart.data.datasets.forEach((ds,di)=>{
+      const meta=chart.getDatasetMeta(di);
+      if(meta.hidden)return;
+      meta.data.forEach((bar,i)=>{
+        const v=ds.data[i];
+        if(!v||v<=0)return;
+        ctx.save();
+        ctx.font='bold 10px "Noto Sans SC"';
+        ctx.fillStyle='#e8eaf0';
+        ctx.textBaseline='middle';
+        if(horizontal){
+          ctx.textAlign='left';
+          ctx.fillText(fmt(v),bar.x+14,bar.y);
+        } else {
+          ctx.textAlign='center';
+          ctx.fillText(fmt(v),bar.x,bar.y-14);
+        }
+        ctx.restore();
+      });
+    });
+  }
+
+  const labelPlugin3DV={id:'lbl3dv',afterDatasetsDraw(c){drawLabels(c,false);}};
+  const labelPlugin3DH={id:'lbl3dh',afterDatasetsDraw(c){drawLabels(c,true);}};
+
+  // ── 饼图3D效果（椭圆倾斜 + 厚度）
+  function draw3DPie(canvasId,labels,data,colors){
+    const canvas=document.getElementById(canvasId);
+    if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||300;
+    const H=canvas.offsetHeight||220;
+    canvas.width=W; canvas.height=H;
+
+    const cx=W*0.38, cy=H*0.48;
+    const rx=Math.min(W*0.28,H*0.38), ry=rx*0.55;
+    const DEPTH=18;
+    const tot=data.reduce((a,b)=>a+b,0);
+    if(!tot){ctx.clearRect(0,0,W,H);return;}
+
+    let startAngle=-Math.PI/2;
+    const slices=data.map((v,i)=>({v,angle:v/tot*Math.PI*2,color:colors[i],label:labels[i]}));
+
+    // 侧面（从下往上画，产生厚度）
+    for(let d=DEPTH;d>=0;d--){
+      let sa=-Math.PI/2;
+      slices.forEach(s=>{
+        const ea=sa+s.angle;
+        const mid=(sa+ea)/2;
+        if(mid>0&&mid<Math.PI){
+          ctx.beginPath();
+          ctx.moveTo(cx+Math.cos(sa)*rx, cy+Math.sin(sa)*ry+d);
+          ctx.ellipse(cx,cy+d,rx,ry,0,sa,ea);
+          ctx.lineTo(cx+Math.cos(ea)*rx, cy+Math.sin(ea)*ry);
+          ctx.ellipse(cx,cy,rx,ry,0,ea,sa,true);
+          ctx.closePath();
+          ctx.fillStyle=darken(s.color,20+d);
+          ctx.fill();
+        }
+        sa=ea;
+      });
+    }
+
+    // 顶面
+    let sa2=-Math.PI/2;
+    slices.forEach(s=>{
+      const ea=sa2+s.angle;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.ellipse(cx,cy,rx,ry,0,sa2,ea);
+      ctx.closePath();
+      ctx.fillStyle=s.color;
+      ctx.fill();
+      ctx.strokeStyle='rgba(15,17,23,0.4)';
+      ctx.lineWidth=1;
+      ctx.stroke();
+      sa2=ea;
     });
 
-    // 广告收入本月 vs 上月对比 — 竖直条图，显示金额数字
-    mkChart('chartAdTypeMom',{
-      type:'bar',
-      data:{labels:AD_TYPES,datasets:[
-        {label:'本月',data:adVals,backgroundColor:'rgba(96,165,250,0.8)',borderRadius:4},
-        {label:'上月',data:adValsPrev,backgroundColor:'rgba(96,165,250,0.25)',borderRadius:4},
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}},
-          tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},
-        scales:{
-          x:{grid:{display:false},ticks:{color:'#9099b0',font:{size:10}}},
-          y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}}
-        },
-        animation:{onComplete:function(){
-          const chart=this;const ctx=chart.ctx;
-          ctx.font='10px "Noto Sans SC"';ctx.textAlign='center';
-          chart.data.datasets.forEach((ds,di)=>{
-            chart.getDatasetMeta(di).data.forEach((bar,i)=>{
-              const v=ds.data[i];
-              if(v>0){ctx.fillStyle='#e8eaf0';ctx.fillText(fmt(v),bar.x,bar.y-4);}
-            });
-          });
-        }}
+    // 占比标签
+    let sa3=-Math.PI/2;
+    slices.forEach(s=>{
+      const ea=sa3+s.angle;
+      const pct=s.v/tot*100;
+      if(pct>=4){
+        const mid=(sa3+ea)/2;
+        const lx=cx+Math.cos(mid)*rx*0.65;
+        const ly=cy+Math.sin(mid)*ry*0.65;
+        ctx.font='bold 11px "Noto Sans SC"';
+        ctx.fillStyle='#fff';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillText(fmtPct(pct),lx,ly);
       }
+      sa3=ea;
     });
 
-    const costLabels=['技术开支','运营开支','商务开支','渠道开支','其他开支','充值损耗','广告损耗'];
-    const costVals=[expT,expO,expB,expCh,expOt,lossC,lossA];
-    const costPrev=[p_expT,p_expO,p_expB,p_expCh,p_expOt,p_lossC,p_lossA];
-    const costColors=['#60a5fa','#4ade80','#a78bfa','#fbbf24','#2dd4bf','#f87171','#fb923c'];
-
-    // 成本结构占比 — 饼图显示占比数字
-    mkChart('chartCostPie',{
-      type:'doughnut',
-      data:{labels:costLabels,datasets:[{data:costVals,backgroundColor:costColors,borderColor:'rgba(255,255,255,0.05)',borderWidth:1,hoverOffset:6}]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{
-          legend:{position:'right',labels:{color:'#9099b0',font:{size:11},boxWidth:12}},
-          tooltip:{...tp,callbacks:{label:c=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);return`${c.label}: ${fmt(c.raw)} (${fmtPct(tot>0?c.raw/tot*100:0)})`;}}}
-        },
-        animation:{onComplete:function(){
-          const chart=this;const ctx=chart.ctx;
-          const tot=costVals.reduce((a,b)=>a+b,0);
-          if(!tot)return;
-          ctx.font='bold 11px "Noto Sans SC"';ctx.textAlign='center';ctx.textBaseline='middle';
-          chart.getDatasetMeta(0).data.forEach((arc,i)=>{
-            const v=costVals[i];if(!v)return;
-            const pct=v/tot*100;if(pct<3)return;
-            const angle=(arc.startAngle+arc.endAngle)/2;
-            const r=(arc.innerRadius+arc.outerRadius)/2;
-            const x=arc.x+Math.cos(angle)*r, y=arc.y+Math.sin(angle)*r;
-            ctx.fillStyle='#fff';ctx.fillText(fmtPct(pct),x,y);
-          });
-        }}
-      }
+    // 图例（右侧）
+    const legX=W*0.72, legY=cy-slices.length*10;
+    slices.forEach((s,i)=>{
+      const lx=legX, ly=legY+i*22;
+      ctx.fillStyle=s.color;
+      ctx.fillRect(lx,ly,12,12);
+      ctx.font='11px "Noto Sans SC"';
+      ctx.fillStyle='#9099b0';
+      ctx.textAlign='left';
+      ctx.textBaseline='top';
+      ctx.fillText(s.label,lx+16,ly);
     });
+  }
 
-    // 成本开支 — 横向柱，显示金额数字
-    mkChart('chartCostBar',{
-      type:'bar',
-      data:{labels:costLabels,datasets:[{label:'实际金额',data:costVals,backgroundColor:costColors.map(c=>c+'bb'),borderColor:costColors,borderWidth:1,borderRadius:4}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},
-          tooltip:{...tp,callbacks:{label:c=>`${fmt(c.raw)}`}}},
-        scales:{
-          x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}},
-          y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}
-        },
-        animation:{onComplete:function(){
-          const chart=this;const ctx=chart.ctx;
-          ctx.font='11px "Noto Sans SC"';ctx.fillStyle='#e8eaf0';ctx.textAlign='left';
-          chart.data.datasets.forEach((_,di)=>{
-            chart.getDatasetMeta(di).data.forEach((bar,i)=>{
-              const v=chart.data.datasets[di].data[i];
-              if(v>0)ctx.fillText(fmt(v),bar.x+4,bar.y+4);
-            });
-          });
-        }}
-      }
-    });
+  // ── 渲染所有图表 ──
 
-    // 成本本月 vs 上月对比 — 竖直条图，显示金额数字
-    mkChart('chartCostMom',{
-      type:'bar',
-      data:{labels:costLabels,datasets:[
-        {label:'本月',data:costVals,backgroundColor:'rgba(248,113,113,0.8)',borderRadius:4},
-        {label:'上月',data:costPrev,backgroundColor:'rgba(248,113,113,0.25)',borderRadius:4},
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}},
-          tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},
-        scales:{
-          x:{grid:{display:false},ticks:{color:'#9099b0',font:{size:10},maxRotation:35}},
-          y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}}
-        },
-        animation:{onComplete:function(){
-          const chart=this;const ctx=chart.ctx;
-          ctx.font='10px "Noto Sans SC"';ctx.textAlign='center';
-          chart.data.datasets.forEach((ds,di)=>{
-            chart.getDatasetMeta(di).data.forEach((bar,i)=>{
-              const v=ds.data[i];
-              if(v>0){ctx.fillStyle='#e8eaf0';ctx.fillText(fmt(v),bar.x,bar.y-4);}
-            });
-          });
-        }}
+  // 收入饼图
+  draw3DPie('chartIncPie',['充值收入','广告收入','其他收入'],[incC,incA,incO],['#60a5fa','#4ade80','#2dd4bf']);
+
+  // 广告类型饼图
+  draw3DPie('chartAdTypePie',AD_TYPES,adVals,AD_COLORS);
+
+  // 广告收入类型明细 — 横向3D柱
+  mkChart('chartAdTypeBar',{
+    type:'bar',
+    data:{labels:AD_TYPES,datasets:[{label:'广告收入',data:adVals,backgroundColor:AD_COLORS,borderWidth:0,borderRadius:0}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tp,callbacks:{label:c=>`${fmt(c.raw)}`}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}},
+        y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}
       }
-    });
+    },
+    plugins:[pseudo3DHBar,labelPlugin3DH]
+  });
+
+  // 广告收入本月 vs 上月 — 竖3D柱
+  mkChart('chartAdTypeMom',{
+    type:'bar',
+    data:{labels:AD_TYPES,datasets:[
+      {label:'本月',data:adVals,backgroundColor:'#60a5fa',borderWidth:0,borderRadius:0},
+      {label:'上月',data:adValsPrev,backgroundColor:'#2a3f6f',borderWidth:0,borderRadius:0},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}},tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#9099b0',font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}}
+      }
+    },
+    plugins:[pseudo3DBar,labelPlugin3DV]
+  });
+
+  const costLabels=['技术开支','运营开支','商务开支','渠道开支','其他开支','充值损耗','广告损耗'];
+  const costVals=[expT,expO,expB,expCh,expOt,lossC,lossA];
+  const costPrev=[p_expT,p_expO,p_expB,p_expCh,p_expOt,p_lossC,p_lossA];
+  const costColors=['#60a5fa','#4ade80','#a78bfa','#fbbf24','#2dd4bf','#f87171','#fb923c'];
+
+  // 成本结构占比 — 3D饼图
+  draw3DPie('chartCostPie',costLabels,costVals,costColors);
+
+  // 成本开支 — 横向3D柱
+  mkChart('chartCostBar',{
+    type:'bar',
+    data:{labels:costLabels,datasets:[{label:'实际金额',data:costVals,backgroundColor:costColors,borderWidth:0,borderRadius:0}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tp,callbacks:{label:c=>`${fmt(c.raw)}`}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}},
+        y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}
+      }
+    },
+    plugins:[pseudo3DHBar,labelPlugin3DH]
+  });
+
+  // 成本本月 vs 上月 — 竖3D柱
+  mkChart('chartCostMom',{
+    type:'bar',
+    data:{labels:costLabels,datasets:[
+      {label:'本月',data:costVals,backgroundColor:'#f87171',borderWidth:0,borderRadius:0},
+      {label:'上月',data:costPrev,backgroundColor:'#6b2e2e',borderWidth:0,borderRadius:0},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}},tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#9099b0',font:{size:10},maxRotation:35}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}}
+      }
+    },
+    plugins:[pseudo3DBar,labelPlugin3DV]
+  });
   },100);
 }
 
