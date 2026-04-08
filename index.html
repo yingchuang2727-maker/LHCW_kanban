@@ -135,18 +135,18 @@ const GID_BUDGET = '1005558888';
 const GID_AD     = '100107827';
 const REFRESH_MS = 60000;
 
-// 日数据列索引（0-based，Excel列名对应）
-// A=0(空), B=1(月份), C=2(日期)
+// 日数据列索引（0-based）
+// 列0=空, 列1=年, 列2=月份, 列3=日期
 // H=7(实际收入), I=8(实际支出), J=9(实际损耗), K=10(实际毛利)
 // O=14(充值), P=15(广告), Q=16(其他), R=17(合计)
 // AF=31(通道损耗), AG=32(广告损耗)
 // AI=34(技术), AJ=35(运营), AK=36(商务), AL=37(渠道), AM=38(其他), AN=39(合计)
 const C = {
-  month:1, date:2,
-  actual_inc:7,   // H栏 = 实际收入
-  actual_exp:8,   // I栏 = 实际支出
-  actual_loss:9,  // J栏 = 实际损耗
-  actual_profit:10, // K栏 = 实际毛利
+  month:2, date:3,   // 月份=列2, 日期=列3
+  actual_inc:7,
+  actual_exp:8,
+  actual_loss:9,
+  actual_profit:10,
   inc_charge:14, inc_ad:15, inc_other:16, inc_total:17,
   loss_channel:31, loss_ad:32,
   exp_tech:34, exp_ops:35, exp_biz:36, exp_channel:37, exp_other:38, exp_total:39
@@ -239,8 +239,8 @@ function parseDailyRows(json){
     const dateCell=c[C.date];
     if(!dateCell?.v)continue;
     const dateStr=String(dateCell.v);
-    // 跳过合计行
-    if(dateStr.includes('合计')||dateStr.includes('-'))continue;
+    // 跳过合计行和分隔行（只跳过纯"-"或含"合计"的行）
+    if(dateStr.trim()==='-'||dateStr.includes('合计'))continue;
     const dateObj=parseGSheetDate(dateStr);
     if(!dateObj)continue;
     const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
