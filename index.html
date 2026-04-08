@@ -989,24 +989,6 @@ async function refresh(){
     adRows=parseAdRows(adJson);
     budgetRows=parseBudgetRows(budgetJson);
 
-    // 若当前筛选范围无数据，自动跳到最新有数据的月份
-    if(allRows.length>0){
-      const curRows=allRows.filter(r=>filterFrom&&filterTo?r.ymd>=filterFrom&&r.ymd<=filterTo:false);
-      if(curRows.length===0){
-        const latest=allRows[allRows.length-1];
-        const d=new Date(latest.ymd);
-        filterFrom=toYMD(new Date(d.getFullYear(),d.getMonth(),1));
-        filterTo=latest.ymd;
-        document.getElementById('date-from').value=filterFrom;
-        document.getElementById('date-to').value=filterTo;
-        // 把「本月」按钮改为激活
-        document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
-        const btns=document.querySelectorAll('.qbtn');
-        if(btns.length>=5)btns[4].classList.add('active');
-        updateLabel();
-      }
-    }
-
     render();
     document.getElementById('upd').textContent='最后更新 '+new Date().toLocaleTimeString('zh-CN');
   }catch(e){
