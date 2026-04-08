@@ -136,20 +136,20 @@ const GID_AD     = '100107827';
 const REFRESH_MS = 60000;
 
 // 日数据列索引（0-based，已通过Console完整验证）
-// col1=年, col2=月份, col3=日期
-// col4=实际收入, col5=实际支出, col10=实际损耗, col11=实际毛利(K栏)
-// col14=充值, col15=广告, col16=其他, col17=合计
-// col44=通道损耗, col45=广告损耗
-// col48=技术, col49=运营, col50=商务, col51=渠道, col52=其他支出, col53=合计支出
+// col0=年, col1=月份, col2=日期
+// col6=实际收入, col4=实际支出, col8=实际损耗, col9=实际毛利
+// col12=充值, col13=广告, col14=其他, col16=合计收入
+// col38=通道损耗, col39=广告损耗
+// col42=技术, col43=运营, col44=商务, col45=渠道, col46=其他支出, col47=合计支出
 const C = {
-  month:2, date:3,
-  actual_inc:4,
-  actual_exp:5,
-  actual_loss:10,
-  actual_profit:11,
-  inc_charge:14, inc_ad:15, inc_other:16, inc_total:17,
-  loss_channel:44, loss_ad:45,
-  exp_tech:48, exp_ops:49, exp_biz:50, exp_channel:51, exp_other:52, exp_total:53
+  month:1, date:2,
+  actual_inc:6,
+  actual_exp:4,
+  actual_loss:8,
+  actual_profit:9,
+  inc_charge:12, inc_ad:13, inc_other:14, inc_total:16,
+  loss_channel:38, loss_ad:39,
+  exp_tech:42, exp_ops:43, exp_biz:44, exp_channel:45, exp_other:46, exp_total:47
 };
 
 // 广告类型
