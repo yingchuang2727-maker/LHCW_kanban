@@ -230,17 +230,16 @@ function parseDailyRows(json){
   const result=[];
   for(const row of json.table.rows){
     const c=row.c||[];
-    // 月份列必须是数字(1-12)
+    // 月份列必须是1-12的整数
     const monthCell=c[C.month];
     if(!monthCell?.v)continue;
     const monthVal=parseFloat(monthCell.v);
-    if(isNaN(monthVal)||monthVal<1||monthVal>12)continue;
-    // 日期列
+    if(isNaN(monthVal)||monthVal<1||monthVal>12||!Number.isInteger(monthVal))continue;
+    // 日期列必须是 Date(...) 格式
     const dateCell=c[C.date];
     if(!dateCell?.v)continue;
     const dateStr=String(dateCell.v);
-    // 跳过合计行和分隔行（只跳过纯"-"或含"合计"的行）
-    if(dateStr.trim()==='-'||dateStr.includes('合计'))continue;
+    if(!dateStr.startsWith('Date('))continue; // 只接受Date(...)格式
     const dateObj=parseGSheetDate(dateStr);
     if(!dateObj)continue;
     const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
@@ -251,7 +250,7 @@ function parseDailyRows(json){
       actual_inc:    g(C.actual_inc),
       actual_exp:    g(C.actual_exp),
       actual_loss:   g(C.actual_loss),
-      actual_cost:   g(C.actual_exp) + g(C.actual_loss), // I+J = 总成本
+      actual_cost:   g(C.actual_exp) + g(C.actual_loss),
       actual_profit: g(C.actual_profit),
       inc_charge:    g(C.inc_charge),
       inc_ad:        g(C.inc_ad),
