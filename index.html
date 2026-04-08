@@ -287,10 +287,11 @@ function parseDailyRows(json){
   return result;
 }
 
-// 预算Sheet列索引（0-based）
-// 0=空, 1=年, 2=月
-// G=6(收入合计完成比例), L=11(开支合计消耗比例)
-// 目标收入合计=列25, 预算合计=列29
+// 预算Sheet列索引（0-based，已通过Console验证）
+// col1=年, col2=月
+// col6=收入达成率合计, col11=支出消耗率合计
+// col15=实际收入合计, col20=实际支出合计
+// col24=目标收入合计, col29=预算支出合计
 function parseBudgetRows(json){
   const result=[];
   for(const row of json.table.rows){
@@ -302,10 +303,10 @@ function parseBudgetRows(json){
     const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
     result.push({
       year:yr, month:mo,
-      inc_achieve_pct: g(6),   // G栏：收入合计完成比例
-      exp_consume_pct: g(11),  // L栏：开支合计消耗比例
-      inc_target:      g(25),  // 目标收入合计
-      exp_budget:      g(29),  // 预算合计
+      inc_achieve_pct: g(6),   // 收入达成率
+      exp_consume_pct: g(11),  // 支出消耗率
+      inc_target:      g(24),  // 目标收入合计
+      exp_budget:      g(29),  // 预算支出合计
     });
   }
   return result;
