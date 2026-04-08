@@ -226,31 +226,49 @@ async function fetchGID(gid){
   return JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
 }
 
+// 自动检测日期列索引
+let DATE_COL=-1, MONTH_COL=-1;
+function detectCols(json){
+  for(var i=0;i<json.table.rows.length;i++){
+    const c=json.table.rows[i].c||[];
+    for(var ci=0;ci<c.length;ci++){
+      if(c[ci]?.v&&String(c[ci].v).startsWith('Date(')){
+        DATE_COL=ci;
+        // 月份在日期列前一列
+        for(var mi=ci-1;mi>=0;mi--){
+          if(c[mi]?.v!=null){
+            const mv=parseFloat(c[mi].v);
+            if(!isNaN(mv)&&mv>=1&&mv<=12){MONTH_COL=mi;break;}
+          }
+        }
+        return;
+      }
+    }
+  }
+}
+
 function parseDailyRows(json){
+  detectCols(json);
+  if(DATE_COL<0){console.error('找不到日期列');return[];}
+  console.log('DATE_COL:',DATE_COL,'MONTH_COL:',MONTH_COL);
   const result=[];
   for(const row of json.table.rows){
     const c=row.c||[];
-    // 月份列必须是1-12的整数
-    const monthCell=c[C.month];
-    if(!monthCell?.v)continue;
-    const monthVal=parseFloat(monthCell.v);
-    if(isNaN(monthVal)||monthVal<1||monthVal>12||!Number.isInteger(monthVal))continue;
-    // 日期列必须是 Date(...) 格式
-    const dateCell=c[C.date];
+    const dateCell=c[DATE_COL];
     if(!dateCell?.v)continue;
     const dateStr=String(dateCell.v);
-    if(!dateStr.startsWith('Date('))continue; // 只接受Date(...)格式
+    if(!dateStr.startsWith('Date('))continue;
     const dateObj=parseGSheetDate(dateStr);
     if(!dateObj)continue;
     const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
     result.push({
-      month:   monthVal,
+      month:   dateObj.getMonth()+1,
       date:    dateCell.f || toYMD(dateObj),
       ymd:     toYMD(dateObj),
       actual_inc:    g(C.actual_inc),
       actual_exp:    g(C.actual_exp),
       actual_loss:   g(C.actual_loss),
-      actual_cost:   g(C.actual_exp) + g(C.actual_loss),
+      actual_cost:   g(C.actual_exp)+g(C.actual_loss),
       actual_profit: g(C.actual_profit),
       inc_charge:    g(C.inc_charge),
       inc_ad:        g(C.inc_ad),
