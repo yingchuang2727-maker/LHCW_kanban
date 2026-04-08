@@ -135,10 +135,10 @@ const GID_BUDGET = '1005558888';
 const GID_AD     = '100107827';
 const REFRESH_MS = 60000;
 
-// 日数据列索引（0-based，已通过Console完整验证）
+// 日数据列索引（0-based，已通过row2=1月3日完整验证）
 // col0=年, col1=月份, col2=日期
 // col6=实际收入, col4=实际支出, col8=实际损耗, col9=实际毛利
-// col12=充值, col13=广告, col14=其他, col16=合计收入
+// col12=充值, col13=广告, col14=其他, col15=合计收入
 // col38=通道损耗, col39=广告损耗
 // col42=技术, col43=运营, col44=商务, col45=渠道, col46=其他支出, col47=合计支出
 const C = {
@@ -147,7 +147,7 @@ const C = {
   actual_exp:4,
   actual_loss:8,
   actual_profit:9,
-  inc_charge:12, inc_ad:13, inc_other:14, inc_total:16,
+  inc_charge:12, inc_ad:13, inc_other:14, inc_total:15,
   loss_channel:38, loss_ad:39,
   exp_tech:42, exp_ops:43, exp_biz:44, exp_channel:45, exp_other:46, exp_total:47
 };
@@ -989,17 +989,20 @@ async function refresh(){
     adRows=parseAdRows(adJson);
     budgetRows=parseBudgetRows(budgetJson);
 
-    // 首次加载：若本月无数据，自动切换到最新有数据的月份
+    // 若当前筛选范围无数据，自动跳到最新有数据的月份
     if(allRows.length>0){
-      const curRows=allRows.filter(r=>r.ymd>=filterFrom&&r.ymd<=filterTo);
+      const curRows=allRows.filter(r=>filterFrom&&filterTo?r.ymd>=filterFrom&&r.ymd<=filterTo:false);
       if(curRows.length===0){
-        // 找最新一条数据的月份
         const latest=allRows[allRows.length-1];
         const d=new Date(latest.ymd);
         filterFrom=toYMD(new Date(d.getFullYear(),d.getMonth(),1));
-        filterTo=toYMD(new Date(d.getFullYear(),d.getMonth()+1,0));
+        filterTo=latest.ymd;
         document.getElementById('date-from').value=filterFrom;
         document.getElementById('date-to').value=filterTo;
+        // 把「本月」按钮改为激活
+        document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+        const btns=document.querySelectorAll('.qbtn');
+        if(btns.length>=5)btns[4].classList.add('active');
         updateLabel();
       }
     }
