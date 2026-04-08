@@ -135,13 +135,13 @@ const GID_BUDGET = '1005558888';
 const GID_AD     = '100107827';
 const REFRESH_MS = 60000;
 
-// 日数据列索引（0-based，已通过Console完整验证）
+// 日数据列索引（0-based，经1月/4月双重验证）
 // col0=年, col1=月份, col2=日期
 // col6=实际收入, col4=实际支出, col8=实际损耗, col9=实际毛利
 // col12=充值, col13=广告, col14=其他, col15=合计收入
 // col38=通道损耗, col39=广告损耗
 // col42=技术, col43=运营, col44=商务, col45=渠道, col46=其他支出, col47=合计支出
-const DATE_COL = 2; // 日期固定在col2
+const DATE_COL = 2;
 const C = {
   month:1, date:2,
   actual_inc:6,
