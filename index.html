@@ -78,7 +78,7 @@ header::after{
   padding:5px 16px;
   border:1px solid var(--border2);
   background:transparent;
-  font-size:11px;color:var(--text2);
+  font-size:11px;color:#8abbd0;
   cursor:pointer;
   font-family:'JetBrains Mono',monospace;
   letter-spacing:0.08em;
@@ -111,14 +111,14 @@ header::after{
   transition:all 0.15s;
 }
 .confirm-btn:hover{background:rgba(0,255,200,0.2);box-shadow:0 0 10px rgba(0,255,200,0.3);}
-.range-label{font-size:10px;color:var(--text3);letter-spacing:0.05em;}
+.range-label{font-size:10px;color:#6a9aaa;letter-spacing:0.05em;}
 
 /* 日历 */
 .cal-btn{
   padding:5px 16px;
   border:1px solid var(--border2);
   background:transparent;
-  font-size:11px;color:var(--text2);
+  font-size:11px;color:#8abbd0;
   cursor:pointer;
   font-family:'JetBrains Mono',monospace;
   letter-spacing:0.08em;
@@ -310,7 +310,7 @@ footer a:hover{color:var(--cyan);}
 </div>
 
 <!-- 日历弹窗 -->
-<div class="cal-popup" id="cal-popup">
+<div class="cal-popup" id="cal-popup" onmousedown="event.stopPropagation()">
   <div class="cal-nav">
     <button class="cal-nav-btn" onclick="calPrevMonth();event.stopPropagation()">‹</button>
     <div class="cal-title" id="cal-title"></div>
