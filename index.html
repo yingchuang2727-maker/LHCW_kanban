@@ -465,10 +465,10 @@ function render(){
   rows.forEach(r=>{ monthCount[r.month]=(monthCount[r.month]||0)+1; });
   const curMonth = rows.length>0 ? parseInt(Object.keys(monthCount).reduce((a,b)=>monthCount[a]>monthCount[b]?a:b)) : (filterFrom?new Date(filterFrom).getMonth()+1:new Date().getMonth()+1);
   const bRow = getBudgetForMonth(curMonth);
-  const inc_achieve_pct = bRow ? bRow.inc_achieve_pct*100 : pctOf(inc,BUDGET.inc_total);
-  const exp_consume_pct = bRow ? bRow.exp_consume_pct*100 : pctOf(cost,BUDGET.exp_total);
-  const inc_target      = bRow ? bRow.inc_target      : BUDGET.inc_total;
-  const exp_budget      = bRow ? bRow.exp_budget      : BUDGET.exp_total;
+  const inc_achieve_pct = bRow ? bRow.inc_achieve_pct*100 : pctOf(inc,0);
+  const exp_consume_pct = bRow ? bRow.exp_consume_pct*100 : pctOf(cost,0);
+  const inc_target      = bRow ? bRow.inc_target      : 0;
+  const exp_budget      = bRow ? bRow.exp_budget      : 0;
 
   // 上期汇总
   const p_inc=sum(prev,'inc_total'), p_incC=sum(prev,'inc_charge'), p_incA=sum(prev,'inc_ad');
@@ -566,11 +566,11 @@ function render(){
   <div class="sec">支出指标</div>
   <div class="kg5">
     ${[
-      ['技术开支','c-red',expT,bRow?bRow.exp_tech_budget:BUDGET.exp_tech,p_expT],
-      ['运营开支','c-red',expO,bRow?bRow.exp_ops_budget:BUDGET.exp_ops,p_expO],
-      ['商务开支','c-red',expB,bRow?bRow.exp_biz_budget:BUDGET.exp_biz,p_expB],
-      ['渠道开支','c-red',expCh,bRow?bRow.exp_channel_budget:BUDGET.exp_channel,p_expCh],
-      ['其他开支','c-orange',expOt,BUDGET.exp_other,p_expOt],
+      ['技术开支','c-red',expT,bRow?bRow.exp_tech_budget:0,p_expT],
+      ['运营开支','c-red',expO,bRow?bRow.exp_ops_budget:0,p_expO],
+      ['商务开支','c-red',expB,bRow?bRow.exp_biz_budget:0,p_expB],
+      ['渠道开支','c-red',expCh,bRow?bRow.exp_channel_budget:0,p_expCh],
+      ['其他开支','c-orange',expOt,0,p_expOt],
     ].map(([label,cls,val,budget,pval])=>`
       <div class="kc ${cls}">
         <div class="kl">${label}</div>
@@ -630,7 +630,7 @@ function render(){
     <div class="ct">支出消耗使用率</div>
     <div class="cs">实际支出 vs 月度预算</div>
     <div class="prog-list">
-      ${[['技术开支',expT,BUDGET.exp_tech,'bar-blue'],['运营开支',expO,BUDGET.exp_ops,'bar-green'],['商务开支',expB,BUDGET.exp_biz,'bar-purple'],['渠道开支',expCh,BUDGET.exp_channel,'bar-amber'],['其他开支',expOt,BUDGET.exp_other,'bar-teal']].map(([name,val,budget,cls])=>{
+      ${[['技术开支',expT,bRow?bRow.exp_tech_budget:0,'bar-blue'],['运营开支',expO,bRow?bRow.exp_ops_budget:0,'bar-green'],['商务开支',expB,bRow?bRow.exp_biz_budget:0,'bar-purple'],['渠道开支',expCh,bRow?bRow.exp_channel_budget:0,'bar-amber'],['其他开支',expOt,0,'bar-teal']].map(([name,val,budget,cls])=>{
         const p=budget>0?Math.min(pctOf(val,budget),150):0;
         const over=budget>0&&val>budget;
         return`<div class="prog-item">
