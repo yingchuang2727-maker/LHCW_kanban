@@ -373,6 +373,31 @@ footer a:hover{color:var(--cyan);}
 }
 .err-btn-sheet:hover{border-color:var(--cyan);color:var(--cyan);}
 
+/* ── 指标告警 Toast ── */
+@keyframes slideDown{0%{transform:translateY(-60px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes slideUp{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-60px);opacity:0}}
+#alert-toast{
+  position:fixed;top:60px;left:50%;transform:translateX(-50%);
+  z-index:9999;pointer-events:none;
+  display:flex;flex-direction:column;gap:6px;
+  align-items:center;
+  min-width:320px;max-width:520px;
+}
+.toast-item{
+  width:100%;
+  background:rgba(10,15,20,0.96);
+  border:1px solid rgba(255,51,85,0.5);
+  padding:10px 16px;
+  display:flex;align-items:center;gap:10px;
+  font-size:11px;color:#ff8090;
+  letter-spacing:0.04em;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  animation:slideDown 0.3s ease forwards;
+  box-shadow:0 0 20px rgba(255,51,85,0.2);
+}
+.toast-item.warn{border-color:rgba(255,170,0,0.5);color:#ffcc60;box-shadow:0 0 20px rgba(255,170,0,0.15);}
+.toast-icon{font-size:13px;flex-shrink:0;}
+
 /* ── 部分数据警告（非致命） ── */
 .warn-bar{
   margin:0 28px 16px;
@@ -397,6 +422,7 @@ footer a:hover{color:var(--cyan);}
     <div class="sync"><div class="dot"></div>实时同步</div>
   </div>
 </header>
+<div id="alert-toast"></div>
 
 <div class="filter-bar">
   <div class="quick-btns">
@@ -416,6 +442,9 @@ footer a:hover{color:var(--cyan);}
   <div class="divider"></div>
   <button class="cal-btn" id="cal-toggle-btn" onclick="toggleCalendar(this)">📅 日历</button>
   <div class="range-label" id="range-label"></div>
+  <div style="margin-left:auto">
+    <button class="cal-btn" onclick="exportCSV()" title="导出当前筛选数据">↓ CSV</button>
+  </div>
 </div>
 
 <!-- 日历弹窗 -->
@@ -871,6 +900,12 @@ function render(){
     sum(prev,'ad_live'),  sum(prev,'ad_drug'),   sum(prev,'ad_adult')
   ];
 
+  // 近30天趋势数据（日粒度，最多取30条）
+  const trendRows=[...allRows].filter(r=>r.ymd).sort((a,b)=>a.ymd>b.ymd?1:-1).slice(-30);
+  const trendLabels=trendRows.map(r=>r.ymd.slice(5));
+  const trendInc=trendRows.map(r=>r.inc_total);
+  const trendProfit=trendRows.map(r=>r.actual_profit);
+
   const main=document.getElementById('main-content');
   main.innerHTML=`
   <!-- ① 总览 -->
@@ -914,6 +949,19 @@ function render(){
         <div class="kmeta-row"><span class="kmeta-label">预算</span><span class="kmeta-val">${fmt(exp_budget)}</span></div>
       </div>
     </div>
+  </div>
+
+  <!-- ① 趋势折线 -->
+  <div class="cc" style="margin-bottom:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+      <div class="ct">近30天收入趋势</div>
+      <div style="display:flex;gap:14px;font-size:10px;color:#9099b0">
+        <span><span style="display:inline-block;width:10px;height:2px;background:#60a5fa;vertical-align:middle;margin-right:4px"></span>总收入</span>
+        <span><span style="display:inline-block;width:10px;height:2px;background:#4ade80;vertical-align:middle;margin-right:4px"></span>毛利润</span>
+      </div>
+    </div>
+    <div class="cs">按自然日汇总（最近30个数据日）</div>
+    <div style="height:180px"><canvas id="chartTrend"></canvas></div>
   </div>
 
   <!-- ② 收入指标 -->
@@ -1073,6 +1121,24 @@ function render(){
     <div class="cs">各项支出环比变化</div>
     <div style="height:200px"><canvas id="chartCostMom"></canvas></div>
   </div>`;
+
+  // ── 指标告警检测 ──
+  (function checkAlerts(){
+    const alerts=[];
+    // 预算超支：实际支出 > 预算 * 110%
+    if(exp_budget>0 && cost>exp_budget*1.1)
+      alerts.push({msg:`总成本超预算 ${fmtPct((cost-exp_budget)/exp_budget*100)}，请关注支出控制`,type:'danger'});
+    // 损耗率过高：充值损耗 > 充值收入 20%
+    if(incC>0 && lossC/incC>0.2)
+      alerts.push({msg:`充值损耗率 ${fmtPct(lossC/incC*100)} 偏高（阈值 20%）`,type:'danger'});
+    // 广告损耗率过高
+    if(incA>0 && lossA/incA>0.3)
+      alerts.push({msg:`广告损耗率 ${fmtPct(lossA/incA*100)} 偏高（阈值 30%）`,type:'warn'});
+    // 收入目标完成率低于 60%（仅月度筛选时判断）
+    if(inc_target>0 && inc/inc_target<0.6)
+      alerts.push({msg:`收入达成率仅 ${fmtPct(inc/inc_target*100)}，距目标差距较大`,type:'warn'});
+    showAlerts(alerts);
+  })();
 
   // ── 图表 ──
   setTimeout(()=>{
@@ -1284,6 +1350,25 @@ function render(){
 
   // ── 渲染所有图表 ──
 
+  // 近30天趋势折线
+  mkChart('chartTrend',{
+    type:'line',
+    data:{
+      labels:trendLabels,
+      datasets:[
+        {label:'总收入',data:trendInc,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.08)',fill:true,tension:0.4,pointRadius:2,pointHoverRadius:4,borderWidth:1.5},
+        {label:'毛利润',data:trendProfit,borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,0.06)',fill:true,tension:0.4,pointRadius:2,pointHoverRadius:4,borderWidth:1.5}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tp,callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#555e7a',font:{size:9},maxTicksLimit:10}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:9},callback:v=>fmt(v)}}
+      }
+    }
+  });
+
   // 收入饼图
   draw3DPie('chartIncPie',['充值收入','广告收入','其他收入'],[incC,incA,incO],['#60a5fa','#4ade80','#2dd4bf']);
 
@@ -1463,6 +1548,55 @@ async function refresh(){
 async function retryRefresh(){
   _isFirstLoad=true;
   await refresh();
+}
+
+// ── Toast 告警 ──
+function showAlerts(alerts){
+  const box=document.getElementById('alert-toast');
+  if(!box)return;
+  box.innerHTML='';
+  if(!alerts||!alerts.length)return;
+  alerts.forEach(a=>{
+    const el=document.createElement('div');
+    el.className='toast-item'+(a.type==='warn'?' warn':'');
+    el.innerHTML=`<span class="toast-icon">${a.type==='warn'?'⚠':'!'}</span><span>${a.msg}</span>`;
+    box.appendChild(el);
+  });
+  // 5秒后淡出
+  setTimeout(()=>{
+    box.querySelectorAll('.toast-item').forEach(el=>{
+      el.style.animation='slideUp 0.4s ease forwards';
+    });
+    setTimeout(()=>{box.innerHTML='';},450);
+  },5000);
+}
+
+// ── 导出 CSV ──
+function exportCSV(){
+  const pwd=prompt('请输入导出密码：');
+  if(pwd===null)return;
+  if(pwd!=='123456'){alert('密码错误，无法导出');return;}
+  const rows=filtered();
+  if(!rows.length){alert('当前筛选范围内没有数据');return;}
+  const headers=['日期','总收入','充值收入','广告收入','其他收入','总支出','技术开支','运营开支','商务开支','渠道开支','其他开支','充值损耗','广告损耗','总成本','毛利润'];
+  const fields=['ymd','inc_total','inc_charge','inc_ad','inc_other','exp_total','exp_tech','exp_ops','exp_biz','exp_channel','exp_other','loss_channel','loss_ad','actual_cost','actual_profit'];
+  const csvRows=[headers.join(',')];
+  rows.forEach(r=>{
+    csvRows.push(fields.map(f=>r[f]??0).join(','));
+  });
+  // 合计行
+  const totals=['合计（'+filterFrom+'~'+filterTo+'）'];
+  fields.slice(1).forEach(f=>totals.push(rows.reduce((s,r)=>s+(r[f]||0),0).toFixed(0)));
+  csvRows.push(totals.join(','));
+
+  const bom='﻿';
+  const blob=new Blob([bom+csvRows.join('\n')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`财务数据_${filterFrom}_${filterTo}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ═══════════════════════════════════
