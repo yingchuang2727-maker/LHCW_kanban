@@ -312,9 +312,9 @@ footer a:hover{color:var(--cyan);}
 <!-- 日历弹窗 -->
 <div class="cal-popup" id="cal-popup">
   <div class="cal-nav">
-    <button class="cal-nav-btn" onclick="calPrevMonth()">‹</button>
+    <button class="cal-nav-btn" onclick="calPrevMonth();event.stopPropagation()">‹</button>
     <div class="cal-title" id="cal-title"></div>
-    <button class="cal-nav-btn" onclick="calNextMonth()">›</button>
+    <button class="cal-nav-btn" onclick="calNextMonth();event.stopPropagation()">›</button>
   </div>
   <div class="cal-grid">
     <div class="cal-dow">日</div><div class="cal-dow">一</div><div class="cal-dow">二</div>
@@ -1281,7 +1281,7 @@ function renderCalendar(){
     // 拖选事件
     el.addEventListener('mousedown',e=>{
       calDragging=true;calDragStart=ymd;calDragEnd=ymd;calFrom=null;calTo=null;
-      renderCalendar();e.preventDefault();
+      renderCalendar();e.preventDefault();e.stopPropagation();
     });
     el.addEventListener('mouseover',e=>{
       if(!calDragging)return;
