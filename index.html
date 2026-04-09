@@ -113,6 +113,59 @@ header::after{
 .confirm-btn:hover{background:rgba(0,255,200,0.2);box-shadow:0 0 10px rgba(0,255,200,0.3);}
 .range-label{font-size:10px;color:var(--text3);letter-spacing:0.05em;}
 
+/* 日历 */
+.cal-btn{
+  padding:5px 16px;
+  border:1px solid var(--border2);
+  background:transparent;
+  font-size:11px;color:var(--text2);
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.08em;
+  clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
+  transition:all 0.15s;
+}
+.cal-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.cal-btn.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,255,200,0.08);}
+.cal-popup{
+  display:none;position:fixed;z-index:999;
+  background:#0a0f14;
+  border:1px solid var(--border3);
+  padding:16px;
+  box-shadow:0 0 30px rgba(0,255,200,0.15);
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  min-width:300px;
+}
+.cal-popup.show{display:block;}
+.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.cal-nav-btn{background:none;border:1px solid var(--border2);color:var(--cyan);cursor:pointer;padding:2px 10px;font-family:'JetBrains Mono',monospace;font-size:13px;}
+.cal-nav-btn:hover{border-color:var(--cyan);}
+.cal-title{font-size:12px;color:var(--cyan);font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-dow{font-size:9px;color:var(--text3);text-align:center;padding:4px 0;letter-spacing:0.05em;}
+.cal-day{
+  font-size:11px;text-align:center;padding:5px 2px;
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  color:var(--text2);
+  transition:all 0.1s;
+  position:relative;
+}
+.cal-day:hover{color:var(--cyan);background:rgba(0,255,200,0.08);}
+.cal-day.has-data{color:var(--text);}
+.cal-day.has-data::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--cyan);opacity:0.6;}
+.cal-day.in-range{background:rgba(0,255,200,0.08);color:var(--text);}
+.cal-day.range-start,.cal-day.range-end{background:rgba(0,255,200,0.2);color:var(--cyan);font-weight:700;}
+.cal-day.today{color:var(--orange);}
+.cal-day.empty{cursor:default;}
+.cal-footer{margin-top:12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:10px;}
+.cal-selected-label{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.cal-apply{
+  padding:4px 14px;background:rgba(0,255,200,0.1);border:1px solid var(--cyan);
+  font-size:10px;color:var(--cyan);cursor:pointer;font-family:'JetBrains Mono',monospace;
+}
+.cal-apply:hover{background:rgba(0,255,200,0.2);}
+
 /* Main */
 main{padding:20px 28px;max-width:1440px;margin:0 auto;}
 
@@ -251,7 +304,27 @@ footer a:hover{color:var(--cyan);}
     <input type="date" class="date-input" id="date-to">
     <button class="confirm-btn" onclick="applyCustomRange()">确定</button>
   </div>
+  <div class="divider"></div>
+  <button class="cal-btn" id="cal-toggle-btn" onclick="toggleCalendar(this)">📅 日历</button>
   <div class="range-label" id="range-label"></div>
+</div>
+
+<!-- 日历弹窗 -->
+<div class="cal-popup" id="cal-popup">
+  <div class="cal-nav">
+    <button class="cal-nav-btn" onclick="calPrevMonth()">‹</button>
+    <div class="cal-title" id="cal-title"></div>
+    <button class="cal-nav-btn" onclick="calNextMonth()">›</button>
+  </div>
+  <div class="cal-grid">
+    <div class="cal-dow">日</div><div class="cal-dow">一</div><div class="cal-dow">二</div>
+    <div class="cal-dow">三</div><div class="cal-dow">四</div><div class="cal-dow">五</div><div class="cal-dow">六</div>
+  </div>
+  <div class="cal-grid" id="cal-days"></div>
+  <div class="cal-footer">
+    <div class="cal-selected-label" id="cal-selected-label">点击选择日期，拖动选范围</div>
+    <button class="cal-apply" onclick="applyCalendar()">确定</button>
+  </div>
 </div>
 
 <main id="main-content"></main>
@@ -1146,6 +1219,118 @@ async function refresh(){
   document.getElementById('date-to').value=filterTo;
   updateLabel();
 })();
+
+// ═══════════════════════════════════
+// 日历组件
+// ═══════════════════════════════════
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+let calDragStart=null, calDragEnd=null, calDragging=false;
+let calFrom=null, calTo=null;
+
+function toggleCalendar(btn){
+  const popup=document.getElementById('cal-popup');
+  const isShow=popup.classList.contains('show');
+  if(isShow){popup.classList.remove('show');btn.classList.remove('active');return;}
+  // 定位弹窗
+  const rect=btn.getBoundingClientRect();
+  popup.style.top=(rect.bottom+6)+'px';
+  popup.style.left=rect.left+'px';
+  popup.classList.add('show');
+  btn.classList.add('active');
+  renderCalendar();
+}
+
+function calPrevMonth(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function calNextMonth(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
+
+function renderCalendar(){
+  const months=['01','02','03','04','05','06','07','08','09','10','11','12'];
+  document.getElementById('cal-title').textContent=`${calYear} / ${months[calMonth]}`;
+  const days=document.getElementById('cal-days');
+  days.innerHTML='';
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const todayStr=toYMD(new Date());
+  // 有数据的日期集合
+  const dataDays=new Set(allRows.map(r=>r.ymd));
+
+  // 空格
+  for(let i=0;i<firstDay;i++){
+    const el=document.createElement('div');
+    el.className='cal-day empty';
+    days.appendChild(el);
+  }
+  for(let d=1;d<=daysInMonth;d++){
+    const ymd=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el=document.createElement('div');
+    el.className='cal-day';
+    el.textContent=d;
+    el.dataset.ymd=ymd;
+    if(dataDays.has(ymd))el.classList.add('has-data');
+    if(ymd===todayStr)el.classList.add('today');
+    // 标记范围
+    const f=calFrom||calDragStart, t=calTo||calDragEnd;
+    if(f&&t){
+      const lo=f<t?f:t, hi=f<t?t:f;
+      if(ymd>=lo&&ymd<=hi)el.classList.add('in-range');
+      if(ymd===lo)el.classList.add('range-start');
+      if(ymd===hi)el.classList.add('range-end');
+    } else if(f&&ymd===f){
+      el.classList.add('range-start');
+    }
+    // 拖选事件
+    el.addEventListener('mousedown',e=>{
+      calDragging=true;calDragStart=ymd;calDragEnd=ymd;calFrom=null;calTo=null;
+      renderCalendar();e.preventDefault();
+    });
+    el.addEventListener('mouseover',e=>{
+      if(!calDragging)return;
+      calDragEnd=ymd;renderCalendar();
+    });
+    days.appendChild(el);
+  }
+  // 更新标签
+  const f=calFrom||calDragStart, t=calTo||calDragEnd;
+  if(f&&t){
+    const lo=f<t?f:t, hi=f<t?t:f;
+    document.getElementById('cal-selected-label').textContent=lo===hi?lo:`${lo} → ${hi}`;
+  } else {
+    document.getElementById('cal-selected-label').textContent='点击选择日期，拖动选范围';
+  }
+}
+
+document.addEventListener('mouseup',()=>{
+  if(!calDragging)return;
+  calDragging=false;
+  if(calDragStart&&calDragEnd){
+    const lo=calDragStart<calDragEnd?calDragStart:calDragEnd;
+    const hi=calDragStart<calDragEnd?calDragEnd:calDragStart;
+    calFrom=lo;calTo=hi;
+    renderCalendar();
+  }
+});
+
+// 点击外部关闭
+document.addEventListener('mousedown',e=>{
+  const popup=document.getElementById('cal-popup');
+  const btn=document.getElementById('cal-toggle-btn');
+  if(!popup.contains(e.target)&&!btn.contains(e.target)){
+    popup.classList.remove('show');
+    btn.classList.remove('active');
+  }
+});
+
+function applyCalendar(){
+  if(!calFrom)return;
+  const lo=calFrom, hi=calTo||calFrom;
+  filterFrom=lo;filterTo=hi;
+  document.getElementById('date-from').value=lo;
+  document.getElementById('date-to').value=hi;
+  document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+  updateLabel();render();
+  document.getElementById('cal-popup').classList.remove('show');
+  document.getElementById('cal-toggle-btn').classList.remove('active');
+}
 
 refresh();
 setInterval(refresh,REFRESH_MS);
