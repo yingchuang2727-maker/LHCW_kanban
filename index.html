@@ -663,7 +663,7 @@ function render(){
     <div style="height:200px"><canvas id="chartAdTypeBar"></canvas></div>
   </div>
   <div class="cc" style="margin-bottom:24px">
-    <div class="ct">广告收入本月 vs 上月对比</div>
+    <div class="ct">广告收入对比：上月 vs 本月</div>
     <div class="cs">按广告类型环比</div>
     <div style="height:200px"><canvas id="chartAdTypeMom"></canvas></div>
   </div>
@@ -683,7 +683,7 @@ function render(){
     </div>
   </div>
   <div class="cc" style="margin-bottom:24px">
-    <div class="ct">成本本月 vs 上月对比</div>
+    <div class="ct">成本对比：上月 vs 本月</div>
     <div class="cs">各项支出环比变化</div>
     <div style="height:200px"><canvas id="chartCostMom"></canvas></div>
   </div>`;
@@ -918,12 +918,12 @@ function render(){
     plugins:[pseudo3DHBar,labelPlugin3DH]
   });
 
-  // 广告收入本月 vs 上月 — 竖3D柱
+  // 广告收入对比：上月 vs 本月 — 竖3D柱
   mkChart('chartAdTypeMom',{
     type:'bar',
     data:{labels:AD_TYPES,datasets:[
-      {label:'本月',data:adVals,backgroundColor:'#60a5fa',borderWidth:0,borderRadius:0},
       {label:'上月',data:adValsPrev,backgroundColor:'#2a3f6f',borderWidth:0,borderRadius:0},
+      {label:'本月',data:adVals,backgroundColor:'#60a5fa',borderWidth:0,borderRadius:0},
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}},tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},
@@ -957,12 +957,12 @@ function render(){
     plugins:[pseudo3DHBar,labelPlugin3DH]
   });
 
-  // 成本本月 vs 上月 — 竖3D柱
+  // 成本对比：上月 vs 本月 — 竖3D柱
   mkChart('chartCostMom',{
     type:'bar',
     data:{labels:costLabels,datasets:[
-      {label:'本月',data:costVals,backgroundColor:'#f87171',borderWidth:0,borderRadius:0},
       {label:'上月',data:costPrev,backgroundColor:'#6b2e2e',borderWidth:0,borderRadius:0},
+      {label:'本月',data:costVals,backgroundColor:'#f87171',borderWidth:0,borderRadius:0},
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}},tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},
