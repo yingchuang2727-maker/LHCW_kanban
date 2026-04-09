@@ -135,31 +135,22 @@ const GID_BUDGET = '1005558888';
 const GID_AD     = '100107827';
 const REFRESH_MS = 60000;
 
-// 日数据列索引（0-based，根据表格标题直接对照，gviz无空列跳过）
-// A=0(年), B=1(月), C=2(日期)
-// D=3(总收入), E=4(总开支), F=5(总损耗), G=6(总毛利润)
-// I=8(充值收入), J=9(广告收入), K=10(其他收入), L=11(收入合计)
-// Y=24(通道损耗), Z=25(广告损耗)
-// AL=37(技术开支), AM=38(运营开支), AN=39(商务开支), AO=40(渠道开支), AP=41(其他支出), AQ=42(合计支出)
+// 日数据列索引（0-based，经Console完整验证 row0=2026-1-1）
+// col0=年, col1=月, col2=日期
+// col3=总收入(D), col4=总开支(E), col5=总损耗(F), col6=总毛利润(G)
+// col8=充值收入(I), col9=广告收入(J), col10=其他收入(K), col11=收入合计(L)
+// col24=通道损耗(Y), col25=广告损耗(Z)
+// col34=技术开支(AL), col35=运营开支(AM), col36=商务开支(AN), col37=渠道开支(AO), col38=其他支出(AP), col39=合计支出(AQ)
 const DATE_COL = 2;
 const C = {
   month:1, date:2,
-  actual_inc:3,    // D=总收入
-  actual_exp:4,    // E=总开支
-  actual_loss:5,   // F=总损耗
-  actual_profit:6, // G=总毛利润
-  inc_charge:8,    // I=充值收入
-  inc_ad:9,        // J=广告收入
-  inc_other:10,    // K=其他收入
-  inc_total:11,    // L=收入合计
-  loss_channel:24, // Y=通道损耗
-  loss_ad:25,      // Z=广告损耗
-  exp_tech:37,     // AL=技术开支
-  exp_ops:38,      // AM=运营开支
-  exp_biz:39,      // AN=商务开支
-  exp_channel:40,  // AO=渠道开支
-  exp_other:41,    // AP=其他支出
-  exp_total:42     // AQ=合计支出
+  actual_inc:3,
+  actual_exp:4,
+  actual_loss:5,
+  actual_profit:6,
+  inc_charge:8, inc_ad:9, inc_other:10, inc_total:11,
+  loss_channel:24, loss_ad:25,
+  exp_tech:34, exp_ops:35, exp_biz:36, exp_channel:37, exp_other:38, exp_total:39
 };
 
 // 广告类型
