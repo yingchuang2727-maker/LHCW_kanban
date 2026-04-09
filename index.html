@@ -130,27 +130,36 @@ footer a{color:var(--text3);text-decoration:none;}
 // 配置
 // ═══════════════════════════════════
 const SHEET_ID   = '1JyXWDifCSfqXNVOwiS4xvLfQpmlLhW-GFsjSsqzJ7TY';
-const GID_DAILY  = '287726551';
+const GID_DAILY  = '1016235559';
 const GID_BUDGET = '1005558888';
 const GID_AD     = '100107827';
 const REFRESH_MS = 60000;
 
-// 日数据列索引（0-based，经1月/4月双重验证）
-// col0=年, col1=月份, col2=日期
-// col6=实际收入, col4=实际支出, col8=实际损耗, col9=实际毛利
-// col12=充值, col13=广告, col14=其他, col15=合计收入
-// col38=通道损耗, col39=广告损耗
-// col42=技术, col43=运营, col44=商务, col45=渠道, col46=其他支出, col47=合计支出
+// 日数据列索引（0-based，根据表格标题直接对照，gviz无空列跳过）
+// A=0(年), B=1(月), C=2(日期)
+// D=3(总收入), E=4(总开支), F=5(总损耗), G=6(总毛利润)
+// I=8(充值收入), J=9(广告收入), K=10(其他收入), L=11(收入合计)
+// Y=24(通道损耗), Z=25(广告损耗)
+// AL=37(技术开支), AM=38(运营开支), AN=39(商务开支), AO=40(渠道开支), AP=41(其他支出), AQ=42(合计支出)
 const DATE_COL = 2;
 const C = {
   month:1, date:2,
-  actual_inc:6,
-  actual_exp:4,
-  actual_loss:8,
-  actual_profit:9,
-  inc_charge:12, inc_ad:13, inc_other:14, inc_total:15,
-  loss_channel:38, loss_ad:39,
-  exp_tech:42, exp_ops:43, exp_biz:44, exp_channel:45, exp_other:46, exp_total:47
+  actual_inc:3,    // D=总收入
+  actual_exp:4,    // E=总开支
+  actual_loss:5,   // F=总损耗
+  actual_profit:6, // G=总毛利润
+  inc_charge:8,    // I=充值收入
+  inc_ad:9,        // J=广告收入
+  inc_other:10,    // K=其他收入
+  inc_total:11,    // L=收入合计
+  loss_channel:24, // Y=通道损耗
+  loss_ad:25,      // Z=广告损耗
+  exp_tech:37,     // AL=技术开支
+  exp_ops:38,      // AM=运营开支
+  exp_biz:39,      // AN=商务开支
+  exp_channel:40,  // AO=渠道开支
+  exp_other:41,    // AP=其他支出
+  exp_total:42     // AQ=合计支出
 };
 
 // 广告类型
@@ -228,21 +237,23 @@ async function fetchGID(gid){
 }
 
 function parseDailyRows(json){
-  detectCols(json);
-  if(DATE_COL<0){console.error('找不到日期列');return[];}
   const result=[];
   for(const row of json.table.rows){
     const c=row.c||[];
     const dateCell=c[DATE_COL];
     if(!dateCell?.v)continue;
     const dateStr=String(dateCell.v);
-    if(!dateStr.startsWith('Date('))continue;
+    // 跳过合计行和分隔行
+    if(dateStr.includes('合计')||dateStr.trim()==='-')continue;
+    // 支持 Date(...) 和 2026-1-1 两种格式
     const dateObj=parseGSheetDate(dateStr);
     if(!dateObj)continue;
     const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
+    // 跳过收入/支出/损耗全为零的行
+    if(g(C.actual_inc)===0&&g(C.actual_exp)===0&&g(C.actual_loss)===0)continue;
     result.push({
       month:   dateObj.getMonth()+1,
-      date:    dateCell.f || toYMD(dateObj),
+      date:    dateStr,
       ymd:     toYMD(dateObj),
       actual_inc:    g(C.actual_inc),
       actual_exp:    g(C.actual_exp),
