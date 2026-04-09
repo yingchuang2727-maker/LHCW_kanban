@@ -135,33 +135,31 @@ const GID_BUDGET = '1005558888';
 const GID_AD     = '100107827';
 const REFRESH_MS = 60000;
 
-// 日数据列索引（0-based，经1月2日Console完整验证）
-// col0=年, col1=月, col2=日期
+// ═══════════════════════════════════
+// 列索引（0-based，经Console完整验证）
+// ═══════════════════════════════════
+// 日数据表：col0=年, col1=月, col2=日期
 // col3=总收入, col4=总开支, col5=总损耗, col6=总毛利润
 // col8=充值收入, col9=广告收入, col10=其他收入, col11=收入合计
 // col24=通道损耗, col25=广告损耗
-// col37=技术开支, col38=运营开支, col39=商务开支, col40=渠道开支, col41=其他支出, col42=合计支出
+// col37=技术, col38=运营, col39=商务, col40=渠道, col41=其他, col42=合计支出
 const DATE_COL = 2;
 const C = {
   month:1, date:2,
-  actual_inc:3,
-  actual_exp:4,
-  actual_loss:5,
-  actual_profit:6,
+  actual_inc:3, actual_exp:4, actual_loss:5, actual_profit:6,
   inc_charge:8, inc_ad:9, inc_other:10, inc_total:11,
   loss_channel:24, loss_ad:25,
   exp_tech:37, exp_ops:38, exp_biz:39, exp_channel:40, exp_other:41, exp_total:42
 };
 
-// 预算Sheet列索引（0-based，经Console验证）
-// col1=年, col2=月
-// col6=收入达成率, col11=支出消耗率, col24=目标收入合计
+// 预算表：col1=年, col2=月
+// col6=收入达成率, col11=消耗率
+// col21=充值目标, col22=广告目标, col23=其他目标, col24=收入总目标
 // col25=技术预算, col26=运营预算, col27=商务预算, col28=渠道预算, col29=总预算
 const B = {
   year:1, month:2,
-  inc_achieve_pct:6,
-  exp_consume_pct:11,
-  inc_target:24,
+  inc_achieve_pct:6, exp_consume_pct:11,
+  inc_charge_target:21, inc_ad_target:22, inc_other_target:23, inc_target:24,
   exp_tech:25, exp_ops:26, exp_biz:27, exp_channel:28, exp_total:29
 };
 
@@ -299,6 +297,9 @@ function parseBudgetRows(json){
       year:yr, month:mo,
       inc_achieve_pct:    g(B.inc_achieve_pct),
       exp_consume_pct:    g(B.exp_consume_pct),
+      inc_charge_target:  g(B.inc_charge_target),
+      inc_ad_target:      g(B.inc_ad_target),
+      inc_other_target:   g(B.inc_other_target),
       inc_target:         g(B.inc_target),
       exp_tech_budget:    g(B.exp_tech),
       exp_ops_budget:     g(B.exp_ops),
@@ -537,8 +538,8 @@ function render(){
       <div class="kl">充值收入</div>
       <div class="kv">${fmt(incC)}</div>
       <div class="kmeta">
-        <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${pctStr(incC,BUDGET.inc_charge)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(BUDGET.inc_charge)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${bRow?.inc_charge_target>0?pctStr(incC,bRow.inc_charge_target):'—'}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(bRow?.inc_charge_target||0)}</span></div>
         <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incC,p_incC)}</div>
       </div>
     </div>
@@ -546,8 +547,8 @@ function render(){
       <div class="kl">广告收入</div>
       <div class="kv">${fmt(incA)}</div>
       <div class="kmeta">
-        <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${pctStr(incA,BUDGET.inc_ad)}</span></div>
-        <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(BUDGET.inc_ad)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${bRow?.inc_ad_target>0?pctStr(incA,bRow.inc_ad_target):'—'}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(bRow?.inc_ad_target||0)}</span></div>
         <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incA,p_incA)}</div>
       </div>
     </div>
@@ -555,7 +556,7 @@ function render(){
       <div class="kl">其他收入</div>
       <div class="kv">${fmt(incO)}</div>
       <div class="kmeta">
-        <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${BUDGET.inc_other>0?pctStr(incO,BUDGET.inc_other):'—'}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${bRow?.inc_other_target>0?pctStr(incO,bRow.inc_other_target):'—'}</span></div>
         <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incO,sum(prev,'inc_other'))}</div>
       </div>
     </div>
@@ -609,7 +610,7 @@ function render(){
     <div class="ct">收入目标执行率</div>
     <div class="cs">实际收入 vs 月度目标</div>
     <div class="prog-list">
-      ${[['充值收入',incC,BUDGET.inc_charge,'bar-green'],['广告收入',incA,BUDGET.inc_ad,'bar-blue'],['其他收入',incO,BUDGET.inc_other,'bar-teal']].map(([name,val,target,cls])=>{
+      ${[['充值收入',incC,bRow?.inc_charge_target||0,'bar-green'],['广告收入',incA,bRow?.inc_ad_target||0,'bar-blue'],['其他收入',incO,bRow?.inc_other_target||0,'bar-teal']].map(([name,val,target,cls])=>{
         const p=target>0?Math.min(pctOf(val,target),150):0;
         const over=target>0&&val>target;
         return`<div class="prog-item">
