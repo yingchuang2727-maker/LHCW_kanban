@@ -270,9 +270,10 @@ function parseDailyRows(json){
 
 // 预算Sheet列索引（0-based，已通过Console验证）
 // col1=年, col2=月
-// col6=收入达成率合计, col11=支出消耗率合计
-// col15=实际收入合计, col20=实际支出合计
-// col24=目标收入合计, col29=预算支出合计
+// col3=充值达成率, col4=广告达成率, col6=收入合计达成率
+// col11=总预算消耗率
+// col15=实际收入合计, col24=目标收入合计
+// col25=技术预算, col26=运营预算, col27=商务预算, col28=渠道预算, col29=总预算
 function parseBudgetRows(json){
   const result=[];
   for(const row of json.table.rows){
@@ -287,7 +288,11 @@ function parseBudgetRows(json){
       inc_achieve_pct: g(6),   // 收入达成率
       exp_consume_pct: g(11),  // 支出消耗率
       inc_target:      g(24),  // 目标收入合计
-      exp_budget:      g(29),  // 预算支出合计
+      exp_budget:      g(29),  // 总预算支出
+      exp_tech_budget:    g(25), // 技术预算
+      exp_ops_budget:     g(26), // 运营预算
+      exp_biz_budget:     g(27), // 商务预算
+      exp_channel_budget: g(28), // 渠道预算
     });
   }
   return result;
@@ -548,10 +553,10 @@ function render(){
   <div class="sec">支出指标</div>
   <div class="kg5">
     ${[
-      ['技术开支','c-red',expT,BUDGET.exp_tech,p_expT],
-      ['运营开支','c-red',expO,BUDGET.exp_ops,p_expO],
-      ['商务开支','c-red',expB,BUDGET.exp_biz,p_expB],
-      ['渠道开支','c-red',expCh,BUDGET.exp_channel,p_expCh],
+      ['技术开支','c-red',expT,bRow?bRow.exp_tech_budget:BUDGET.exp_tech,p_expT],
+      ['运营开支','c-red',expO,bRow?bRow.exp_ops_budget:BUDGET.exp_ops,p_expO],
+      ['商务开支','c-red',expB,bRow?bRow.exp_biz_budget:BUDGET.exp_biz,p_expB],
+      ['渠道开支','c-red',expCh,bRow?bRow.exp_channel_budget:BUDGET.exp_channel,p_expCh],
       ['其他开支','c-orange',expOt,BUDGET.exp_other,p_expOt],
     ].map(([label,cls,val,budget,pval])=>`
       <div class="kc ${cls}">
