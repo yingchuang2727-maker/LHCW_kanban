@@ -143,13 +143,15 @@ const REFRESH_MS = 60000;
 // col8=充值收入, col9=广告收入, col10=其他收入, col11=收入合计
 // col24=通道损耗, col25=广告损耗
 // col37=技术, col38=运营, col39=商务, col40=渠道, col41=其他, col42=合计支出
+// col61=棋牌, col62=约炮, col63=播放器, col64=直播, col65=春药, col66=成人游戏, col67=合计
 const DATE_COL = 2;
 const C = {
   month:1, date:2,
   actual_inc:3, actual_exp:4, actual_loss:5, actual_profit:6,
   inc_charge:8, inc_ad:9, inc_other:10, inc_total:11,
   loss_channel:24, loss_ad:25,
-  exp_tech:37, exp_ops:38, exp_biz:39, exp_channel:40, exp_other:41, exp_total:42
+  exp_tech:37, exp_ops:38, exp_biz:39, exp_channel:40, exp_other:41, exp_total:42,
+  ad_chess:61, ad_dating:62, ad_player:63, ad_live:64, ad_drug:65, ad_adult:66
 };
 
 // 预算表：col1=年, col2=月
@@ -266,6 +268,12 @@ function parseDailyRows(json){
       exp_channel:   g(C.exp_channel),
       exp_other:     g(C.exp_other),
       exp_total:     g(C.exp_total),
+      ad_chess:      g(C.ad_chess),
+      ad_dating:     g(C.ad_dating),
+      ad_player:     g(C.ad_player),
+      ad_live:       g(C.ad_live),
+      ad_drug:       g(C.ad_drug),
+      ad_adult:      g(C.ad_adult),
     });
   }
   return result;
@@ -429,8 +437,6 @@ function momArrow(cur,prev){
 function render(){
   const rows=filtered();
   const prev=getPrevMonthRows(rows);
-  const adCur=filteredAd();
-  const adPrv=getPrevAdRows();
 
   // 当期汇总
   const inc    = sum(rows,'inc_total');
@@ -469,15 +475,15 @@ function render(){
   const p_expB=sum(prev,'exp_biz'), p_expCh=sum(prev,'exp_channel'), p_expOt=sum(prev,'exp_other');
   const p_lossC=sum(prev,'loss_channel'), p_lossA=sum(prev,'loss_ad'), p_prof=sum(prev,'actual_profit');
 
-  // 广告类型汇总
-  const adByType={};
-  AD_TYPES.forEach(t=>adByType[t]=0);
-  adCur.forEach(r=>{if(adByType[r.type]!==undefined)adByType[r.type]+=r.rmb;});
-  const adByTypePrev={};
-  AD_TYPES.forEach(t=>adByTypePrev[t]=0);
-  adPrv.forEach(r=>{if(adByTypePrev[r.type]!==undefined)adByTypePrev[r.type]+=r.rmb;});
-  const adVals=AD_TYPES.map(t=>adByType[t]);
-  const adValsPrev=AD_TYPES.map(t=>adByTypePrev[t]);
+  // 广告类型汇总（直接从日数据读取）
+  const adVals=[
+    sum(rows,'ad_chess'), sum(rows,'ad_dating'), sum(rows,'ad_player'),
+    sum(rows,'ad_live'),  sum(rows,'ad_drug'),   sum(rows,'ad_adult')
+  ];
+  const adValsPrev=[
+    sum(prev,'ad_chess'), sum(prev,'ad_dating'), sum(prev,'ad_player'),
+    sum(prev,'ad_live'),  sum(prev,'ad_drug'),   sum(prev,'ad_adult')
+  ];
 
   const main=document.getElementById('main-content');
   main.innerHTML=`
