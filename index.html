@@ -135,12 +135,12 @@ const GID_BUDGET = '1005558888';
 const GID_AD     = '100107827';
 const REFRESH_MS = 60000;
 
-// 日数据列索引（0-based，经Console完整验证 row0=2026-1-1）
+// 日数据列索引（0-based，经1月2日Console完整验证）
 // col0=年, col1=月, col2=日期
-// col3=总收入(D), col4=总开支(E), col5=总损耗(F), col6=总毛利润(G)
-// col8=充值收入(I), col9=广告收入(J), col10=其他收入(K), col11=收入合计(L)
-// col24=通道损耗(Y), col25=广告损耗(Z)
-// col34=技术开支(AL), col35=运营开支(AM), col36=商务开支(AN), col37=渠道开支(AO), col38=其他支出(AP), col39=合计支出(AQ)
+// col3=总收入, col4=总开支, col5=总损耗, col6=总毛利润
+// col8=充值收入, col9=广告收入, col10=其他收入, col11=收入合计
+// col24=通道损耗, col25=广告损耗
+// col37=技术开支, col38=运营开支, col39=商务开支, col40=渠道开支, col41=其他支出, col42=合计支出
 const DATE_COL = 2;
 const C = {
   month:1, date:2,
@@ -150,7 +150,19 @@ const C = {
   actual_profit:6,
   inc_charge:8, inc_ad:9, inc_other:10, inc_total:11,
   loss_channel:24, loss_ad:25,
-  exp_tech:34, exp_ops:35, exp_biz:36, exp_channel:37, exp_other:38, exp_total:39
+  exp_tech:37, exp_ops:38, exp_biz:39, exp_channel:40, exp_other:41, exp_total:42
+};
+
+// 预算Sheet列索引（0-based，经Console验证）
+// col1=年, col2=月
+// col6=收入达成率, col11=支出消耗率, col24=目标收入合计
+// col25=技术预算, col26=运营预算, col27=商务预算, col28=渠道预算, col29=总预算
+const B = {
+  year:1, month:2,
+  inc_achieve_pct:6,
+  exp_consume_pct:11,
+  inc_target:24,
+  exp_tech:25, exp_ops:26, exp_biz:27, exp_channel:28, exp_total:29
 };
 
 // 广告类型
@@ -278,21 +290,21 @@ function parseBudgetRows(json){
   const result=[];
   for(const row of json.table.rows){
     const c=row.c||[];
-    const yearCell=c[1], monthCell=c[2];
+    const yearCell=c[B.year], monthCell=c[B.month];
     if(!yearCell?.v||!monthCell?.v)continue;
     const yr=parseFloat(yearCell.v), mo=parseFloat(monthCell.v);
     if(isNaN(yr)||isNaN(mo)||mo<1||mo>12)continue;
     const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
     result.push({
       year:yr, month:mo,
-      inc_achieve_pct: g(6),   // 收入达成率
-      exp_consume_pct: g(11),  // 支出消耗率
-      inc_target:      g(24),  // 目标收入合计
-      exp_budget:      g(29),  // 总预算支出
-      exp_tech_budget:    g(25), // 技术预算
-      exp_ops_budget:     g(26), // 运营预算
-      exp_biz_budget:     g(27), // 商务预算
-      exp_channel_budget: g(28), // 渠道预算
+      inc_achieve_pct:    g(B.inc_achieve_pct),
+      exp_consume_pct:    g(B.exp_consume_pct),
+      inc_target:         g(B.inc_target),
+      exp_tech_budget:    g(B.exp_tech),
+      exp_ops_budget:     g(B.exp_ops),
+      exp_biz_budget:     g(B.exp_biz),
+      exp_channel_budget: g(B.exp_channel),
+      exp_budget:         g(B.exp_total),
     });
   }
   return result;
