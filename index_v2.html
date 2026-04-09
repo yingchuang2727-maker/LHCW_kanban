@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>领航财务BI看板</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#080c10;--bg2:#0d1117;--bg3:#111820;--bg4:#1a2230;
+  --border:rgba(0,255,200,0.08);--border2:rgba(0,255,200,0.18);--border3:rgba(0,255,200,0.35);
+  --text:#c8d8e8;--text2:#5a7a8a;--text3:#2a4a5a;
+  --cyan:#00ffe0;--orange:#ff6b2b;--blue:#00aaff;--amber:#ffaa00;--purple:#aa55ff;--red:#ff3355;--green:#00ff88;
+  --accent:#00ffe0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* 背景网格 */
+body{
+  font-family:'JetBrains Mono','Noto Sans SC',monospace;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  background-image:
+    linear-gradient(rgba(0,255,200,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,255,200,0.025) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* Header */
+header{
+  background:rgba(8,12,16,0.95);
+  border-bottom:1px solid var(--border3);
+  padding:0 28px;height:54px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(10px);
+}
+header::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{
+  width:32px;height:32px;
+  background:transparent;
+  border:1px solid var(--cyan);
+  clip-path:polygon(0 4px,4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--cyan);
+  box-shadow:0 0 10px rgba(0,255,200,0.3);
+}
+.logo-text{font-size:14px;font-weight:700;color:var(--cyan);letter-spacing:0.15em;text-transform:uppercase;}
+.logo-sub{font-size:10px;color:var(--text3);letter-spacing:0.1em;}
+.hdr-r{display:flex;align-items:center;gap:14px;}
+.sync{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(0,255,200,0.05);
+  border:1px solid rgba(0,255,200,0.2);
+  padding:4px 12px;font-size:11px;color:var(--cyan);
+  clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
+  letter-spacing:0.08em;
+}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse 2s infinite;box-shadow:0 0 6px var(--cyan);}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.7)}}
+#upd{font-size:10px;color:var(--text3);letter-spacing:0.05em;}
+
+/* Filter bar */
+.filter-bar{
+  background:rgba(13,17,23,0.9);
+  border-bottom:1px solid var(--border);
+  padding:10px 28px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.quick-btns{display:flex;gap:4px;}
+.qbtn{
+  padding:5px 16px;
+  border:1px solid var(--border2);
+  background:transparent;
+  font-size:11px;color:#8abbd0;
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.08em;
+  transition:all 0.15s;
+  clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
+}
+.qbtn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,255,200,0.05);}
+.qbtn.active{background:rgba(0,255,200,0.1);color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 8px rgba(0,255,200,0.2);}
+.divider{width:1px;height:24px;background:var(--border2);margin:0 4px;}
+.date-range{display:flex;align-items:center;gap:8px;}
+.date-input{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  padding:5px 10px;font-size:11px;
+  color:var(--text);
+  font-family:'JetBrains Mono',monospace;
+  outline:none;color-scheme:dark;
+  clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,0 100%);
+}
+.date-input:focus{border-color:var(--cyan);}
+.confirm-btn{
+  padding:5px 16px;
+  background:rgba(0,255,200,0.1);
+  border:1px solid var(--cyan);
+  font-size:11px;color:var(--cyan);font-weight:600;
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.08em;
+  clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
+  transition:all 0.15s;
+}
+.confirm-btn:hover{background:rgba(0,255,200,0.2);box-shadow:0 0 10px rgba(0,255,200,0.3);}
+.range-label{font-size:10px;color:#6a9aaa;letter-spacing:0.05em;}
+
+/* 日历 */
+.cal-btn{
+  padding:5px 16px;
+  border:1px solid var(--border2);
+  background:transparent;
+  font-size:11px;color:#8abbd0;
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.08em;
+  clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
+  transition:all 0.15s;
+}
+.cal-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.cal-btn.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,255,200,0.08);}
+.cal-popup{
+  display:none;position:fixed;z-index:999;
+  background:#0a0f14;
+  border:1px solid var(--border3);
+  padding:16px;
+  box-shadow:0 0 30px rgba(0,255,200,0.15);
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  min-width:300px;
+}
+.cal-popup.show{display:block;}
+.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.cal-nav-btn{background:none;border:1px solid var(--border2);color:var(--cyan);cursor:pointer;padding:2px 10px;font-family:'JetBrains Mono',monospace;font-size:13px;}
+.cal-nav-btn:hover{border-color:var(--cyan);}
+.cal-title{font-size:12px;color:var(--cyan);font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-dow{font-size:9px;color:var(--text3);text-align:center;padding:4px 0;letter-spacing:0.05em;}
+.cal-day{
+  font-size:11px;text-align:center;padding:5px 2px;
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  color:var(--text2);
+  transition:all 0.1s;
+  position:relative;
+}
+.cal-day:hover{color:var(--cyan);background:rgba(0,255,200,0.08);}
+.cal-day.has-data{color:var(--text);}
+.cal-day.has-data::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--cyan);opacity:0.6;}
+.cal-day.in-range{background:rgba(0,255,200,0.08);color:var(--text);}
+.cal-day.range-start,.cal-day.range-end{background:rgba(0,255,200,0.2);color:var(--cyan);font-weight:700;}
+.cal-day.today{color:var(--orange);}
+.cal-day.empty{cursor:default;}
+.cal-footer{margin-top:12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:10px;}
+.cal-selected-label{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.cal-apply{
+  padding:4px 14px;background:rgba(0,255,200,0.1);border:1px solid var(--cyan);
+  font-size:10px;color:var(--cyan);cursor:pointer;font-family:'JetBrains Mono',monospace;
+}
+.cal-apply:hover{background:rgba(0,255,200,0.2);}
+
+/* Main */
+main{padding:20px 28px;max-width:1440px;margin:0 auto;}
+
+/* Section header */
+.sec{
+  font-size:10px;font-weight:700;color:var(--cyan);
+  margin-bottom:12px;letter-spacing:0.2em;
+  text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;
+}
+.sec::before{content:'//';color:var(--orange);font-size:10px;margin-right:2px;}
+.sec::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border3),transparent);}
+
+/* KPI Cards */
+.kg5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px;}
+.kg3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.kg2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px;}
+
+.kc{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  padding:16px 18px;
+  position:relative;overflow:hidden;
+  transition:border-color 0.2s,box-shadow 0.2s;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+}
+.kc:hover{border-color:var(--border3);box-shadow:0 0 20px rgba(0,255,200,0.08);}
+
+/* 切角装饰 */
+.kc::after{
+  content:'';position:absolute;
+  top:0;right:0;
+  width:10px;height:10px;
+  border-left:1px solid var(--border2);
+  border-bottom:1px solid var(--border2);
+  transform:rotate(0deg);
+}
+
+/* 顶部彩色线 */
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;}
+.kc.c-blue::before{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
+.kc.c-green::before{background:linear-gradient(90deg,transparent,var(--green),transparent);}
+.kc.c-red::before{background:linear-gradient(90deg,transparent,var(--red),transparent);}
+.kc.c-amber::before{background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.kc.c-purple::before{background:linear-gradient(90deg,transparent,var(--purple),transparent);}
+.kc.c-teal::before{background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+.kc.c-orange::before{background:linear-gradient(90deg,transparent,var(--orange),transparent);}
+
+.kl{font-size:10px;color:#a0c8e0;margin-bottom:8px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;}
+.kv{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-0.5px;color:var(--text);}
+.kmeta{margin-top:10px;display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--border);padding-top:8px;}
+.kmeta-row{display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.kmeta-label{color:#5a8aaa;letter-spacing:0.05em;}
+.kmeta-val{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8ab0c8;}
+
+.pos{color:var(--green)!important;}
+.neg{color:var(--red)!important;}
+.neu{color:var(--text2)!important;}
+.hi-a{color:var(--amber);}
+
+/* Charts */
+.chart-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+.cc{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  padding:18px 20px;
+  position:relative;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+}
+.cc::after{
+  content:'';position:absolute;top:0;right:0;
+  width:12px;height:12px;
+  border-left:1px solid var(--border2);
+  border-bottom:1px solid var(--border2);
+}
+.ct{font-size:12px;font-weight:600;color:var(--cyan);margin-bottom:2px;letter-spacing:0.08em;}
+.cs{font-size:10px;color:var(--text3);margin-bottom:14px;letter-spacing:0.05em;}
+
+/* Progress bars */
+.prog-list{display:flex;flex-direction:column;gap:14px;margin-top:4px;}
+.prog-item{}
+.prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.prog-name{font-size:11px;color:var(--text2);letter-spacing:0.06em;}
+.prog-vals{display:flex;gap:8px;align-items:center;}
+.prog-pct{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.prog-num{font-size:10px;color:var(--text3);}
+.prog-bg{background:rgba(0,255,200,0.04);border:1px solid var(--border);height:6px;overflow:hidden;}
+.prog-bar{height:100%;transition:width 0.6s ease;}
+.bar-green{background:linear-gradient(90deg,#00ff88,#00ffcc);}
+.bar-blue{background:linear-gradient(90deg,#00aaff,#0066ff);}
+.bar-red{background:linear-gradient(90deg,#ff3355,#ff6633);}
+.bar-amber{background:linear-gradient(90deg,#ffaa00,#ff6600);}
+.bar-purple{background:linear-gradient(90deg,#aa55ff,#6633ff);}
+.bar-teal{background:linear-gradient(90deg,#00ffe0,#00aaff);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:rgba(0,255,200,0.2);}
+
+/* Footer */
+footer{
+  text-align:center;padding:16px;
+  font-size:10px;color:var(--text3);
+  border-top:1px solid var(--border);
+  margin-top:8px;letter-spacing:0.08em;
+}
+footer a{color:var(--text3);text-decoration:none;}
+footer a:hover{color:var(--cyan);}
+
+/* ── 骨架屏 ── */
+@keyframes shimmer{
+  0%{background-position:-600px 0}
+  100%{background-position:600px 0}
+}
+.skeleton{
+  background:linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);
+  background-size:600px 100%;
+  animation:shimmer 1.6s infinite linear;
+  border-radius:3px;
+}
+.sk-wrap{padding:20px 28px;max-width:1440px;margin:0 auto;}
+.sk-row{display:grid;gap:10px;margin-bottom:24px;}
+.sk-row.c5{grid-template-columns:repeat(5,1fr);}
+.sk-row.c3{grid-template-columns:repeat(3,1fr);}
+.sk-row.c2{grid-template-columns:repeat(2,1fr);}
+.sk-card{
+  background:var(--bg2);border:1px solid var(--border);
+  padding:16px 18px;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+}
+.sk-label{height:10px;width:55%;margin-bottom:14px;}
+.sk-value{height:22px;width:70%;margin-bottom:12px;}
+.sk-meta{height:8px;width:40%;}
+.sk-meta2{height:8px;width:55%;margin-top:6px;}
+.sk-sec{height:10px;width:120px;margin-bottom:16px;}
+.sk-chart{
+  background:var(--bg2);border:1px solid var(--border);padding:18px 20px;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+}
+.sk-chart-title{height:12px;width:40%;margin-bottom:8px;}
+.sk-chart-sub{height:8px;width:25%;margin-bottom:16px;}
+.sk-chart-body{height:200px;width:100%;}
+
+/* ── 错误提示 ── */
+.err-banner{
+  margin:20px 28px;
+  background:rgba(255,51,85,0.06);
+  border:1px solid rgba(255,51,85,0.35);
+  padding:14px 18px;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  display:flex;align-items:flex-start;gap:14px;
+}
+.err-icon{
+  flex-shrink:0;width:32px;height:32px;
+  background:rgba(255,51,85,0.12);
+  border:1px solid rgba(255,51,85,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:var(--red);
+  clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
+}
+.err-body{flex:1;}
+.err-title{font-size:13px;font-weight:600;color:var(--red);margin-bottom:4px;letter-spacing:0.05em;}
+.err-msg{font-size:11px;color:#c06070;line-height:1.6;letter-spacing:0.03em;}
+.err-detail{
+  margin-top:8px;font-size:10px;color:var(--text3);
+  font-family:'JetBrains Mono',monospace;
+  background:rgba(0,0,0,0.3);padding:6px 10px;letter-spacing:0.03em;
+  border-left:2px solid rgba(255,51,85,0.4);
+}
+.err-actions{margin-top:12px;display:flex;gap:8px;}
+.err-btn{
+  padding:5px 14px;font-size:11px;
+  font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;
+  cursor:pointer;transition:all 0.15s;
+  clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
+}
+.err-btn-retry{
+  background:rgba(255,51,85,0.1);border:1px solid var(--red);color:var(--red);
+}
+.err-btn-retry:hover{background:rgba(255,51,85,0.2);}
+.err-btn-sheet{
+  background:transparent;border:1px solid var(--border2);color:var(--text2);
+}
+.err-btn-sheet:hover{border-color:var(--cyan);color:var(--cyan);}
+
+/* ── 部分数据警告（非致命） ── */
+.warn-bar{
+  margin:0 28px 16px;
+  background:rgba(255,170,0,0.05);
+  border:1px solid rgba(255,170,0,0.25);
+  padding:8px 14px;
+  display:flex;align-items:center;gap:10px;font-size:11px;color:#c09030;
+  letter-spacing:0.04em;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+.warn-bar-icon{color:var(--amber);font-size:13px;flex-shrink:0;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">财</div>
+    <div><div class="logo-text">领航财务BI看板</div><div class="logo-sub">实时数据同步</div></div>
+  </div>
+  <div class="hdr-r">
+    <div id="upd">加载中...</div>
+    <div class="sync"><div class="dot"></div>实时同步</div>
+  </div>
+</header>
+
+<div class="filter-bar">
+  <div class="quick-btns">
+    <button class="qbtn" onclick="setQuick(this,'today')">今日</button>
+    <button class="qbtn" onclick="setQuick(this,'yesterday')">昨日</button>
+    <button class="qbtn" onclick="setQuick(this,'week')">本周</button>
+    <button class="qbtn" onclick="setQuick(this,'lastmonth')">上月</button>
+    <button class="qbtn active" onclick="setQuick(this,'month')">本月</button>
+  </div>
+  <div class="divider"></div>
+  <div class="date-range">
+    <input type="date" class="date-input" id="date-from">
+    <span style="color:var(--text3);font-size:12px">→</span>
+    <input type="date" class="date-input" id="date-to">
+    <button class="confirm-btn" onclick="applyCustomRange()">确定</button>
+  </div>
+  <div class="divider"></div>
+  <button class="cal-btn" id="cal-toggle-btn" onclick="toggleCalendar(this)">📅 日历</button>
+  <div class="range-label" id="range-label"></div>
+</div>
+
+<!-- 日历弹窗 -->
+<div class="cal-popup" id="cal-popup" onmousedown="event.stopPropagation()">
+  <div class="cal-nav">
+    <button class="cal-nav-btn" onclick="calPrevMonth();event.stopPropagation()">‹</button>
+    <div class="cal-title" id="cal-title"></div>
+    <button class="cal-nav-btn" onclick="calNextMonth();event.stopPropagation()">›</button>
+  </div>
+  <div class="cal-grid">
+    <div class="cal-dow">日</div><div class="cal-dow">一</div><div class="cal-dow">二</div>
+    <div class="cal-dow">三</div><div class="cal-dow">四</div><div class="cal-dow">五</div><div class="cal-dow">六</div>
+  </div>
+  <div class="cal-grid" id="cal-days"></div>
+  <div class="cal-footer">
+    <div class="cal-selected-label" id="cal-selected-label">点击选择日期，拖动选范围</div>
+    <button class="cal-apply" onclick="applyCalendar()">确定</button>
+  </div>
+</div>
+
+<div id="skeleton-screen" class="sk-wrap">
+  <div class="sk-sec skeleton"></div>
+  <div class="sk-row c5">
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div><div class="skeleton sk-meta2"></div></div>
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div></div>
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div></div>
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div><div class="skeleton sk-meta2"></div></div>
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div><div class="skeleton sk-meta2"></div></div>
+  </div>
+  <div class="sk-sec skeleton" style="width:80px;margin-bottom:16px;"></div>
+  <div class="sk-row c3">
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div><div class="skeleton sk-meta2"></div></div>
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div><div class="skeleton sk-meta2"></div></div>
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div></div>
+  </div>
+  <div class="sk-sec skeleton" style="width:80px;margin-bottom:16px;"></div>
+  <div class="sk-row c5">
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div></div>
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div></div>
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div></div>
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div></div>
+    <div class="sk-card"><div class="skeleton sk-label"></div><div class="skeleton sk-value"></div><div class="skeleton sk-meta"></div></div>
+  </div>
+  <div class="sk-row c2">
+    <div class="sk-chart"><div class="skeleton sk-chart-title"></div><div class="skeleton sk-chart-sub"></div><div class="skeleton sk-chart-body"></div></div>
+    <div class="sk-chart"><div class="skeleton sk-chart-title"></div><div class="skeleton sk-chart-sub"></div><div class="skeleton sk-chart-body"></div></div>
+  </div>
+</div>
+<div id="error-screen" style="display:none;"></div>
+<main id="main-content" style="display:none;"></main>
+
+<footer>
+  数据来源：Google Sheets · 领航财务BI模版 · 每60秒自动刷新 ·
+  <a href="https://docs.google.com/spreadsheets/d/1JyXWDifCSfqXNVOwiS4xvLfQpmlLhW-GFsjSsqzJ7TY" target="_blank">查看原始表格</a>
+</footer>
+
+<script>
+// ═══════════════════════════════════
+// 配置
+// ═══════════════════════════════════
+const SHEET_ID   = '1JyXWDifCSfqXNVOwiS4xvLfQpmlLhW-GFsjSsqzJ7TY';
+const GID_DAILY  = '1016235559';
+const GID_BUDGET = '1005558888';
+const GID_AD     = '100107827';
+const REFRESH_MS = 60000;
+
+// ═══════════════════════════════════
+// 列索引（0-based，经Console完整验证）
+// ═══════════════════════════════════
+// 日数据表：col0=年, col1=月, col2=日期
+// col3=总收入, col4=总开支, col5=总损耗, col6=总毛利润
+// col8=充值收入, col9=广告收入, col10=其他收入, col11=收入合计
+// col24=通道损耗, col25=广告损耗
+// col37=技术, col38=运营, col39=商务, col40=渠道, col41=其他, col42=合计支出
+// col61=棋牌, col62=约炮, col63=播放器, col64=直播, col65=春药, col66=成人游戏, col67=合计
+const DATE_COL = 2;
+const C = {
+  month:1, date:2,
+  actual_inc:3, actual_exp:4, actual_loss:5, actual_profit:6,
+  inc_charge:8, inc_ad:9, inc_other:10, inc_total:11,
+  loss_channel:24, loss_ad:25,
+  exp_tech:37, exp_ops:38, exp_biz:39, exp_channel:40, exp_other:41, exp_total:42,
+  ad_chess:61, ad_dating:62, ad_player:63, ad_live:64, ad_drug:65, ad_adult:66
+};
+
+// 预算表：col1=年, col2=月
+// col6=收入达成率, col11=消耗率
+// col21=充值目标, col22=广告目标, col23=其他目标, col24=收入总目标
+// col25=技术预算, col26=运营预算, col27=商务预算, col28=渠道预算, col29=总预算
+const B = {
+  year:1, month:2,
+  inc_achieve_pct:6, exp_consume_pct:11,
+  inc_charge_target:21, inc_ad_target:22, inc_other_target:23, inc_target:24,
+  exp_tech:25, exp_ops:26, exp_biz:27, exp_channel:28, exp_total:29
+};
+
+// 广告类型
+const AD_TYPES  = ['棋牌','约炮','播放器','直播','春药','成人游戏'];
+const AD_COLORS = ['#60a5fa','#f87171','#4ade80','#fbbf24','#a78bfa','#2dd4bf'];
+
+// ═══════════════════════════════════
+// 状态
+// ═══════════════════════════════════
+let allRows=[], adRows=[], filterFrom=null, filterTo=null;
+let budgetRows=[], charts={};
+
+// ═══════════════════════════════════
+// 工具
+// ═══════════════════════════════════
+const toYMD = d => {
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+};
+
+// 实数格式：1,234,567
+const fmt = v => {
+  if(v===null||v===undefined||isNaN(v))return'0';
+  const n=Math.round(parseFloat(v));
+  return n.toLocaleString('zh-CN');
+};
+
+const fmtDec = v => {
+  if(!v||isNaN(v))return'0';
+  return parseFloat(v).toLocaleString('zh-CN',{minimumFractionDigits:0,maximumFractionDigits:2});
+};
+
+const fmtPct = v => {
+  if(!v||isNaN(v))return'0.00%';
+  return parseFloat(v).toFixed(2)+'%';
+};
+
+const pctOf = (a,b) => b&&b!==0?(a/b*100):0;
+const pctStr = (a,b) => fmtPct(pctOf(a,b));
+const sum = (rows,k) => rows.reduce((s,r)=>s+(r[k]||0),0);
+const posClass = v => v>0?'pos':v<0?'neg':'neu';
+
+function parseGSheetDate(v){
+  if(!v)return null;
+  const s=String(v);
+  // Date(2026,2,1) 格式
+  const m=s.match(/Date\((\d+),(\d+),(\d+)\)/);
+  if(m)return new Date(parseInt(m[1]),parseInt(m[2]),parseInt(m[3]));
+  // 2026-1-1 格式
+  const m2=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m2)return new Date(parseInt(m2[1]),parseInt(m2[2])-1,parseInt(m2[3]));
+  return null;
+}
+
+function startOfMonth(){const d=new Date();d.setDate(1);d.setHours(0,0,0,0);return d;}
+function startOfLastMonth(){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-1);d.setHours(0,0,0,0);return d;}
+function endOfLastMonth(){const d=new Date();d.setDate(0);d.setHours(23,59,59,999);return d;}
+function startOfWeek(){const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));d.setHours(0,0,0,0);return d;}
+
+// ═══════════════════════════════════
+// 数据获取
+// ═══════════════════════════════════
+async function fetchGID(gid){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${gid}&nocache=${Date.now()}`;
+  const resp=await fetch(url);
+  const text=await resp.text();
+  return JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+}
+
+function parseDailyRows(json){
+  const result=[];
+  for(const row of json.table.rows){
+    const c=row.c||[];
+    const dateCell=c[DATE_COL];
+    if(!dateCell?.v)continue;
+    const dateStr=String(dateCell.v);
+    // 跳过合计行和分隔行
+    if(dateStr.includes('合计')||dateStr.trim()==='-')continue;
+    // 支持 Date(...) 和 2026-1-1 两种格式
+    const dateObj=parseGSheetDate(dateStr);
+    if(!dateObj)continue;
+    const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
+    // 跳过收入/支出/损耗全为零的行
+    if(g(C.actual_inc)===0&&g(C.actual_exp)===0&&g(C.actual_loss)===0)continue;
+    result.push({
+      month:   dateObj.getMonth()+1,
+      date:    dateStr,
+      ymd:     toYMD(dateObj),
+      actual_inc:    g(C.actual_inc),
+      actual_exp:    g(C.actual_exp),
+      actual_loss:   g(C.actual_loss),
+      actual_cost:   g(C.actual_exp)+g(C.actual_loss),
+      actual_profit: g(C.actual_profit),
+      inc_charge:    g(C.inc_charge),
+      inc_ad:        g(C.inc_ad),
+      inc_other:     g(C.inc_other),
+      inc_total:     g(C.inc_total),
+      loss_channel:  g(C.loss_channel),
+      loss_ad:       g(C.loss_ad),
+      exp_tech:      g(C.exp_tech),
+      exp_ops:       g(C.exp_ops),
+      exp_biz:       g(C.exp_biz),
+      exp_channel:   g(C.exp_channel),
+      exp_other:     g(C.exp_other),
+      exp_total:     g(C.exp_total),
+      ad_chess:      g(C.ad_chess),
+      ad_dating:     g(C.ad_dating),
+      ad_player:     g(C.ad_player),
+      ad_live:       g(C.ad_live),
+      ad_drug:       g(C.ad_drug),
+      ad_adult:      g(C.ad_adult),
+    });
+  }
+  return result;
+}
+
+// 预算Sheet列索引（0-based，已通过Console验证）
+// col1=年, col2=月
+// col3=充值达成率, col4=广告达成率, col6=收入合计达成率
+// col11=总预算消耗率
+// col15=实际收入合计, col24=目标收入合计
+// col25=技术预算, col26=运营预算, col27=商务预算, col28=渠道预算, col29=总预算
+function parseBudgetRows(json){
+  const result=[];
+  for(const row of json.table.rows){
+    const c=row.c||[];
+    const yearCell=c[B.year], monthCell=c[B.month];
+    if(!yearCell?.v||!monthCell?.v)continue;
+    const yr=parseFloat(yearCell.v), mo=parseFloat(monthCell.v);
+    if(isNaN(yr)||isNaN(mo)||mo<1||mo>12)continue;
+    const g=i=>(c[i]?.v!=null)?parseFloat(c[i].v)||0:0;
+    result.push({
+      year:yr, month:mo,
+      inc_achieve_pct:    g(B.inc_achieve_pct),
+      exp_consume_pct:    g(B.exp_consume_pct),
+      inc_charge_target:  g(B.inc_charge_target),
+      inc_ad_target:      g(B.inc_ad_target),
+      inc_other_target:   g(B.inc_other_target),
+      inc_target:         g(B.inc_target),
+      exp_tech_budget:    g(B.exp_tech),
+      exp_ops_budget:     g(B.exp_ops),
+      exp_biz_budget:     g(B.exp_biz),
+      exp_channel_budget: g(B.exp_channel),
+      exp_budget:         g(B.exp_total),
+    });
+  }
+  return result;
+}
+
+function getBudgetForMonth(mo){
+  return budgetRows.find(r=>r.month===mo)||null;
+}
+
+function parseAdRows(json){
+  const result=[];
+  for(const row of json.table.rows){
+    const c=row.c||[];
+    const dateCell=c[2];
+    const typeCell=c[4];
+    const rmbCell =c[5];
+    if(!dateCell?.v||!typeCell?.v||rmbCell?.v==null)continue;
+    const dateObj=parseGSheetDate(String(dateCell.v));
+    if(!dateObj)continue;
+    const rmb=parseFloat(rmbCell.v)||0;
+    result.push({ymd:toYMD(dateObj), type:String(typeCell.v), rmb});
+  }
+  return result;
+}
+
+// ═══════════════════════════════════
+// 筛选
+// ═══════════════════════════════════
+function filtered(){
+  return allRows.filter(r=>{
+    if(!r.ymd)return true;
+    if(filterFrom&&r.ymd<filterFrom)return false;
+    if(filterTo  &&r.ymd>filterTo  )return false;
+    return true;
+  });
+}
+
+function filteredAd(){
+  return adRows.filter(r=>{
+    if(filterFrom&&r.ymd<filterFrom)return false;
+    if(filterTo  &&r.ymd>filterTo  )return false;
+    return true;
+  });
+}
+
+// 获取上月同期数据
+function getPrevMonthRows(rows){
+  if(!filterFrom||!filterTo)return[];
+  const from=new Date(filterFrom), to=new Date(filterTo);
+  const prevFrom=toYMD(new Date(from.getFullYear(),from.getMonth()-1,from.getDate()));
+  const prevTo  =toYMD(new Date(to.getFullYear(),to.getMonth()-1,to.getDate()));
+  return allRows.filter(r=>r.ymd&&r.ymd>=prevFrom&&r.ymd<=prevTo);
+}
+
+function getPrevAdRows(){
+  if(!filterFrom||!filterTo)return[];
+  const from=new Date(filterFrom), to=new Date(filterTo);
+  const prevFrom=toYMD(new Date(from.getFullYear(),from.getMonth()-1,from.getDate()));
+  const prevTo  =toYMD(new Date(to.getFullYear(),to.getMonth()-1,to.getDate()));
+  return adRows.filter(r=>r.ymd>=prevFrom&&r.ymd<=prevTo);
+}
+
+// ═══════════════════════════════════
+// 时间筛选
+// ═══════════════════════════════════
+function setQuick(btn,type){
+  document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const t=new Date();
+  if(type==='today')filterFrom=filterTo=toYMD(t);
+  else if(type==='yesterday'){const y=new Date(t);y.setDate(y.getDate()-1);filterFrom=filterTo=toYMD(y);}
+  else if(type==='week'){filterFrom=toYMD(startOfWeek());filterTo=toYMD(t);}
+  else if(type==='month'){filterFrom=toYMD(startOfMonth());filterTo=toYMD(t);}
+  else if(type==='lastmonth'){filterFrom=toYMD(startOfLastMonth());filterTo=toYMD(endOfLastMonth());}
+  document.getElementById('date-from').value=filterFrom;
+  document.getElementById('date-to').value=filterTo;
+  updateLabel();render();showContent([]);
+}
+function applyCustomRange(){
+  const from=document.getElementById('date-from').value;
+  const to=document.getElementById('date-to').value;
+  // ── 校验：必须填写
+  if(!from||!to){
+    showDateError('请同时填写开始和结束日期');
+    return;
+  }
+  // ── 校验：开始不能晚于结束
+  if(from>to){
+    showDateError('开始日期不能晚于结束日期');
+    // 视觉高亮反转
+    document.getElementById('date-from').style.borderColor='var(--red)';
+    document.getElementById('date-to').style.borderColor='var(--red)';
+    setTimeout(()=>{
+      document.getElementById('date-from').style.borderColor='';
+      document.getElementById('date-to').style.borderColor='';
+      clearDateError();
+    },2500);
+    return;
+  }
+  // ── 校验：范围不超过 366 天（防止一次拉取过多数据）
+  const days=(new Date(to)-new Date(from))/(1000*60*60*24);
+  if(days>366){
+    showDateError('日期范围最长支持 366 天，请缩短区间');
+    return;
+  }
+  clearDateError();
+  filterFrom=from;
+  filterTo=to;
+  document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+  updateLabel();render();showContent([]);
+}
+function showDateError(msg){
+  let el=document.getElementById('date-err-tip');
+  if(!el){
+    el=document.createElement('span');
+    el.id='date-err-tip';
+    el.style.cssText='font-size:10px;color:var(--red);letter-spacing:0.04em;animation:fadeIn .2s ease;';
+    document.getElementById('range-label').parentNode.appendChild(el);
+  }
+  el.textContent='⚠ '+msg;
+}
+function clearDateError(){
+  const el=document.getElementById('date-err-tip');
+  if(el)el.remove();
+}
+function updateLabel(){
+  document.getElementById('range-label').textContent=filterFrom&&filterTo?`${filterFrom} ~ ${filterTo}`:'';
+}
+
+// ═══════════════════════════════════
+// 图表工具
+// ═══════════════════════════════════
+const tp={backgroundColor:'rgba(26,29,39,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#9099b0',bodyColor:'#e8eaf0'};
+
+function mkChart(id,cfg){
+  // 首次创建
+  if(!charts[id]){
+    const ctx=document.getElementById(id);
+    if(!ctx)return;
+    charts[id]=new Chart(ctx,cfg);
+    return;
+  }
+  // 已存在：增量更新，避免 destroy 重建导致闪烁
+  const ch=charts[id];
+  const newData=cfg.data;
+  // 更新 labels
+  ch.data.labels=newData.labels;
+  // 更新每个 dataset 的 data（其余配置不变，保留动画连续性）
+  newData.datasets.forEach((ds,i)=>{
+    if(ch.data.datasets[i]){
+      ch.data.datasets[i].data=ds.data;
+      // 颜色可能随数据变化，同步更新
+      if(ds.backgroundColor)ch.data.datasets[i].backgroundColor=ds.backgroundColor;
+    }
+  });
+  ch.update('active');
+}
+
+function pieOpts(labels,data,colors){
+  return{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderColor:'rgba(255,255,255,0.05)',borderWidth:1,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{color:'#9099b0',font:{size:11},boxWidth:12}},
+        tooltip:{...tp,callbacks:{label:c=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);return `${c.label}: ${fmt(c.raw)} (${fmtPct(tot>0?c.raw/tot*100:0)})`;}}}}}};
+}
+
+function hbarOpts(labels,datasets,fmtFn){
+  return{type:'bar',data:{labels,datasets},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:datasets.length>1,labels:{color:'#9099b0',font:{size:11}}},tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label||''}: ${(fmtFn||fmt)(c.raw)}`}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>(fmtFn||fmt)(v)}},y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}}}};
+}
+
+// ═══════════════════════════════════
+// 环比箭头
+// ═══════════════════════════════════
+function momArrow(cur,prev){
+  if(!prev||prev===0)return`<span class="neu">—</span>`;
+  const p=((cur-prev)/Math.abs(prev)*100);
+  const s=p.toFixed(1);
+  return p>=0?`<span class="pos">▲${s}%</span>`:`<span class="neg">▼${Math.abs(parseFloat(s))}%</span>`;
+}
+
+// ═══════════════════════════════════
+// 渲染
+// ═══════════════════════════════════
+function render(){
+  const rows=filtered();
+  const prev=getPrevMonthRows(rows);
+
+  // 当期汇总
+  const inc    = sum(rows,'inc_total');
+  const incC   = sum(rows,'inc_charge');
+  const incA   = sum(rows,'inc_ad');
+  const incO   = sum(rows,'inc_other');
+  const cost   = sum(rows,'actual_cost');  // 总成本 = I+J
+  const exp    = sum(rows,'exp_total');
+  const expT   = sum(rows,'exp_tech');
+  const expO   = sum(rows,'exp_ops');
+  const expB   = sum(rows,'exp_biz');
+  const expCh  = sum(rows,'exp_channel');
+  const expOt  = sum(rows,'exp_other');
+  const lossC  = sum(rows,'loss_channel');
+  const lossA  = sum(rows,'loss_ad');
+  const prof       = sum(rows,'actual_profit');  // K栏
+  const actual_exp = sum(rows,'actual_exp');     // I栏
+  const actual_loss= sum(rows,'actual_loss');    // J栏
+  // 毛利率 = (H收入 - I支出 - J损耗) / H收入
+  const margin_val = inc > 0 ? (inc - actual_exp - actual_loss) / inc * 100 : 0;
+  const margin     = margin_val;
+
+  // 用实际数据的月份匹配预算（取筛选数据中最多的月份）
+  const monthCount={};
+  rows.forEach(r=>{ monthCount[r.month]=(monthCount[r.month]||0)+1; });
+  const curMonth = rows.length>0 ? parseInt(Object.keys(monthCount).reduce((a,b)=>monthCount[a]>monthCount[b]?a:b)) : (filterFrom?new Date(filterFrom).getMonth()+1:new Date().getMonth()+1);
+  const bRow = getBudgetForMonth(curMonth);
+  const inc_achieve_pct = bRow ? bRow.inc_achieve_pct*100 : pctOf(inc,0);
+  const exp_consume_pct = bRow ? bRow.exp_consume_pct*100 : pctOf(cost,0);
+  const inc_target      = bRow ? bRow.inc_target      : 0;
+  const exp_budget      = bRow ? bRow.exp_budget      : 0;
+
+  // 上期汇总
+  const p_inc=sum(prev,'inc_total'), p_incC=sum(prev,'inc_charge'), p_incA=sum(prev,'inc_ad');
+  const p_exp=sum(prev,'exp_total'), p_expT=sum(prev,'exp_tech'), p_expO=sum(prev,'exp_ops');
+  const p_expB=sum(prev,'exp_biz'), p_expCh=sum(prev,'exp_channel'), p_expOt=sum(prev,'exp_other');
+  const p_lossC=sum(prev,'loss_channel'), p_lossA=sum(prev,'loss_ad'), p_prof=sum(prev,'actual_profit');
+
+  // 广告类型汇总（直接从日数据读取）
+  const adVals=[
+    sum(rows,'ad_chess'), sum(rows,'ad_dating'), sum(rows,'ad_player'),
+    sum(rows,'ad_live'),  sum(rows,'ad_drug'),   sum(rows,'ad_adult')
+  ];
+  const adValsPrev=[
+    sum(prev,'ad_chess'), sum(prev,'ad_dating'), sum(prev,'ad_player'),
+    sum(prev,'ad_live'),  sum(prev,'ad_drug'),   sum(prev,'ad_adult')
+  ];
+
+  const main=document.getElementById('main-content');
+  const _html=`
+  <!-- ① 总览 -->
+  <div class="sec">总览</div>
+  <div class="kg5">
+    <div class="kc c-blue">
+      <div class="kl">总毛利润</div>
+      <div class="kv">${fmt(prof)}</div>
+      <div class="kmeta">
+        <div class="kmeta-row"><span class="kmeta-label">毛利率</span><span class="kmeta-val ${posClass(margin)}">${fmtPct(margin)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(prof,p_prof)}</div>
+      </div>
+    </div>
+    <div class="kc c-green">
+      <div class="kl">总收入</div>
+      <div class="kv">${fmt(inc)}</div>
+      <div class="kmeta">
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(inc,p_inc)}</div>
+      </div>
+    </div>
+    <div class="kc c-red">
+      <div class="kl">总成本</div>
+      <div class="kv">${fmt(cost)}</div>
+      <div class="kmeta">
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(cost,sum(prev,'actual_cost'))}</div>
+      </div>
+    </div>
+    <div class="kc c-amber">
+      <div class="kl">目标销售达成率</div>
+      <div class="kv">${fmtPct(inc_achieve_pct)}</div>
+      <div class="kmeta">
+        <div class="kmeta-row"><span class="kmeta-label">实际</span><span class="kmeta-val">${fmt(inc)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(inc_target)}</span></div>
+      </div>
+    </div>
+    <div class="kc c-purple">
+      <div class="kl">预算消耗使用率</div>
+      <div class="kv">${fmtPct(exp_consume_pct)}</div>
+      <div class="kmeta">
+        <div class="kmeta-row"><span class="kmeta-label">实际</span><span class="kmeta-val">${fmt(cost)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">预算</span><span class="kmeta-val">${fmt(exp_budget)}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 收入指标 -->
+  <div class="sec">收入指标</div>
+  <div class="kg3">
+    <div class="kc c-green">
+      <div class="kl">充值收入</div>
+      <div class="kv">${fmt(incC)}</div>
+      <div class="kmeta">
+        <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${bRow?.inc_charge_target>0?pctStr(incC,bRow.inc_charge_target):'—'}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(bRow?.inc_charge_target||0)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incC,p_incC)}</div>
+      </div>
+    </div>
+    <div class="kc c-green">
+      <div class="kl">广告收入</div>
+      <div class="kv">${fmt(incA)}</div>
+      <div class="kmeta">
+        <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${bRow?.inc_ad_target>0?pctStr(incA,bRow.inc_ad_target):'—'}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">目标</span><span class="kmeta-val">${fmt(bRow?.inc_ad_target||0)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incA,p_incA)}</div>
+      </div>
+    </div>
+    <div class="kc c-teal">
+      <div class="kl">其他收入</div>
+      <div class="kv">${fmt(incO)}</div>
+      <div class="kmeta">
+        <div class="kmeta-row"><span class="kmeta-label">完成比例</span><span class="kmeta-val">${bRow?.inc_other_target>0?pctStr(incO,bRow.inc_other_target):'—'}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(incO,sum(prev,'inc_other'))}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 支出指标 -->
+  <div class="sec">支出指标</div>
+  <div class="kg5">
+    ${[
+      ['技术开支','c-red',expT,bRow?bRow.exp_tech_budget:0,p_expT],
+      ['运营开支','c-red',expO,bRow?bRow.exp_ops_budget:0,p_expO],
+      ['商务开支','c-red',expB,bRow?bRow.exp_biz_budget:0,p_expB],
+      ['渠道开支','c-red',expCh,bRow?bRow.exp_channel_budget:0,p_expCh],
+      ['其他开支','c-orange',expOt,0,p_expOt],
+    ].map(([label,cls,val,budget,pval])=>`
+      <div class="kc ${cls}">
+        <div class="kl">${label}</div>
+        <div class="kv">${fmt(val)}</div>
+        <div class="kmeta">
+          <div class="kmeta-row"><span class="kmeta-label">预算</span><span class="kmeta-val">${fmt(budget)}</span></div>
+          <div class="kmeta-row"><span class="kmeta-label">使用率</span><span class="kmeta-val ${budget>0&&val/budget>0.9?'neg':''}">${budget>0?pctStr(val,budget):'—'}</span></div>
+          <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(val,pval)}</div>
+        </div>
+      </div>`).join('')}
+  </div>
+
+  <!-- ④ 损耗指标 -->
+  <div class="sec">损耗指标</div>
+  <div class="kg2">
+    <div class="kc c-amber">
+      <div class="kl">充值损耗</div>
+      <div class="kv">${fmt(lossC)}</div>
+      <div class="kmeta">
+        <div class="kmeta-row"><span class="kmeta-label">占充值收入</span><span class="kmeta-val hi-a">${pctStr(lossC,incC)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(lossC,p_lossC)}</div>
+      </div>
+    </div>
+    <div class="kc c-amber">
+      <div class="kl">广告损耗</div>
+      <div class="kv">${fmt(lossA)}</div>
+      <div class="kmeta">
+        <div class="kmeta-row"><span class="kmeta-label">占广告收入</span><span class="kmeta-val hi-a">${pctStr(lossA,incA)}</span></div>
+        <div class="kmeta-row"><span class="kmeta-label">环比</span>${momArrow(lossA,p_lossA)}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ 收入目标执行率 -->
+  <div class="sec">收入目标执行率</div>
+  <div class="cc" style="margin-bottom:24px">
+    <div class="ct">收入目标执行率</div>
+    <div class="cs">实际收入 vs 月度目标</div>
+    <div class="prog-list">
+      ${[['充值收入',incC,bRow?.inc_charge_target||0,'bar-green'],['广告收入',incA,bRow?.inc_ad_target||0,'bar-blue'],['其他收入',incO,bRow?.inc_other_target||0,'bar-teal']].map(([name,val,target,cls])=>{
+        const p=target>0?Math.min(pctOf(val,target),150):0;
+        const over=target>0&&val>target;
+        return`<div class="prog-item">
+          <div class="prog-header">
+            <span class="prog-name">${name}</span>
+            <div class="prog-vals"><span class="prog-pct ${over?'pos':''}">${target>0?fmtPct(pctOf(val,target)):'—'}</span><span class="prog-num">${fmt(val)} / ${fmt(target)}</span></div>
+          </div>
+          <div class="prog-bg"><div class="prog-bar ${cls}" style="width:${Math.min(p,100)}%"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- ⑥ 支出消耗使用率 -->
+  <div class="sec">支出消耗使用率</div>
+  <div class="cc" style="margin-bottom:24px">
+    <div class="ct">支出消耗使用率</div>
+    <div class="cs">实际支出 vs 月度预算</div>
+    <div class="prog-list">
+      ${[['技术开支',expT,bRow?bRow.exp_tech_budget:0,'bar-blue'],['运营开支',expO,bRow?bRow.exp_ops_budget:0,'bar-green'],['商务开支',expB,bRow?bRow.exp_biz_budget:0,'bar-purple'],['渠道开支',expCh,bRow?bRow.exp_channel_budget:0,'bar-amber'],['其他开支',expOt,0,'bar-teal']].map(([name,val,budget,cls])=>{
+        const p=budget>0?Math.min(pctOf(val,budget),150):0;
+        const over=budget>0&&val>budget;
+        return`<div class="prog-item">
+          <div class="prog-header">
+            <span class="prog-name">${name}</span>
+            <div class="prog-vals"><span class="prog-pct ${over?'neg':''}">${budget>0?fmtPct(pctOf(val,budget)):'—'}</span><span class="prog-num">${fmt(val)} / ${fmt(budget)}</span></div>
+          </div>
+          <div class="prog-bg"><div class="prog-bar ${over?'bar-red':cls}" style="width:${Math.min(p,100)}%"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- ⑦ 收入结构 -->
+  <div class="sec">收入结构</div>
+  <div class="chart-row-2" style="margin-bottom:14px">
+    <div class="cc">
+      <div class="ct">充值 vs 广告收入占比</div>
+      <div class="cs">本期收入结构</div>
+      <div style="height:220px;display:flex;justify-content:center"><canvas id="chartIncPie"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">广告收入类型占比</div>
+      <div class="cs">棋牌 · 约炮 · 播放器 · 直播 · 春药 · 成人游戏</div>
+      <div style="height:220px;display:flex;justify-content:center"><canvas id="chartAdTypePie"></canvas></div>
+    </div>
+  </div>
+  <div class="cc" style="margin-bottom:14px">
+    <div class="ct">广告收入类型明细</div>
+    <div class="cs">各类型收入金额（RMB）</div>
+    <div style="height:200px"><canvas id="chartAdTypeBar"></canvas></div>
+  </div>
+  <div class="cc" style="margin-bottom:24px">
+    <div class="ct">广告收入对比：上月 vs 本月</div>
+    <div class="cs">按广告类型环比</div>
+    <div style="height:200px"><canvas id="chartAdTypeMom"></canvas></div>
+  </div>
+
+  <!-- ⑧ 成本结构 -->
+  <div class="sec">成本结构</div>
+  <div class="chart-row-2" style="margin-bottom:14px">
+    <div class="cc">
+      <div class="ct">成本结构占比</div>
+      <div class="cs">各项支出 + 损耗</div>
+      <div style="height:220px;display:flex;justify-content:center"><canvas id="chartCostPie"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">成本开支</div>
+      <div class="cs">各项实际支出金额</div>
+      <div style="height:220px"><canvas id="chartCostBar"></canvas></div>
+    </div>
+  </div>
+  <div class="cc" style="margin-bottom:24px">
+    <div class="ct">成本对比：上月 vs 本月</div>
+    <div class="cs">各项支出环比变化</div>
+    <div style="height:200px"><canvas id="chartCostMom"></canvas></div>
+  </div>`;
+
+  // 批量写入 DOM，rAF 避免同步 reflow 闪烁
+  requestAnimationFrame(()=>{ main.innerHTML=_html; });
+
+  // ── 图表 ──
+  setTimeout(()=>{
+
+  // ── 伪3D插件 ──
+  // 竖柱3D顶面+侧面
+  const pseudo3DBar = {
+    id:'pseudo3DBar',
+    afterDatasetsDraw(chart){
+      const ctx=chart.ctx;
+      const DEPTH=8, SKEW=6;
+      chart.data.datasets.forEach((_,di)=>{
+        const meta=chart.getDatasetMeta(di);
+        if(meta.hidden)return;
+        meta.data.forEach((bar,i)=>{
+          const {x,y,width,base}=bar;
+          const v=chart.data.datasets[di].data[i];
+          if(!v||v<=0)return;
+          const col=chart.data.datasets[di].backgroundColor;
+          const baseCol=Array.isArray(col)?col[i]:col;
+          // 顶面
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(x-width/2, y);
+          ctx.lineTo(x-width/2+SKEW, y-DEPTH);
+          ctx.lineTo(x+width/2+SKEW, y-DEPTH);
+          ctx.lineTo(x+width/2, y);
+          ctx.closePath();
+          ctx.fillStyle=lighten(baseCol,40);
+          ctx.fill();
+          // 右侧面
+          ctx.beginPath();
+          ctx.moveTo(x+width/2, y);
+          ctx.lineTo(x+width/2+SKEW, y-DEPTH);
+          ctx.lineTo(x+width/2+SKEW, base-DEPTH);
+          ctx.lineTo(x+width/2, base);
+          ctx.closePath();
+          ctx.fillStyle=darken(baseCol,30);
+          ctx.fill();
+          ctx.restore();
+        });
+      });
+    }
+  };
+
+  // 横柱3D顶面+侧面
+  const pseudo3DHBar = {
+    id:'pseudo3DHBar',
+    afterDatasetsDraw(chart){
+      const ctx=chart.ctx;
+      const DEPTH=6, SKEW=5;
+      chart.data.datasets.forEach((_,di)=>{
+        const meta=chart.getDatasetMeta(di);
+        if(meta.hidden)return;
+        meta.data.forEach((bar,i)=>{
+          const {x,y,height,base}=bar;
+          const v=chart.data.datasets[di].data[i];
+          if(!v||v<=0)return;
+          const col=chart.data.datasets[di].backgroundColor;
+          const baseCol=Array.isArray(col)?col[i]:col;
+          // 顶面（右侧）
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(x, y-height/2);
+          ctx.lineTo(x+DEPTH, y-height/2-SKEW);
+          ctx.lineTo(x+DEPTH, y+height/2-SKEW);
+          ctx.lineTo(x, y+height/2);
+          ctx.closePath();
+          ctx.fillStyle=lighten(baseCol,40);
+          ctx.fill();
+          // 上侧面
+          ctx.beginPath();
+          ctx.moveTo(base, y-height/2);
+          ctx.lineTo(x, y-height/2);
+          ctx.lineTo(x+DEPTH, y-height/2-SKEW);
+          ctx.lineTo(base+DEPTH, y-height/2-SKEW);
+          ctx.closePath();
+          ctx.fillStyle=lighten(baseCol,20);
+          ctx.fill();
+          ctx.restore();
+        });
+      });
+    }
+  };
+
+  // 颜色工具
+  function lighten(hex,amt){
+    const r=parseInt(hex.slice(1,3)||'60',16),g=parseInt(hex.slice(3,5)||'a5',16),b=parseInt(hex.slice(5,7)||'fa',16);
+    return`rgba(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)},0.9)`;
+  }
+  function darken(hex,amt){
+    const r=parseInt(hex.slice(1,3)||'60',16),g=parseInt(hex.slice(3,5)||'a5',16),b=parseInt(hex.slice(5,7)||'fa',16);
+    return`rgba(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)},0.9)`;
+  }
+
+  // 绘制数字标签
+  function drawLabels(chart,horizontal){
+    const ctx=chart.ctx;
+    chart.data.datasets.forEach((ds,di)=>{
+      const meta=chart.getDatasetMeta(di);
+      if(meta.hidden)return;
+      meta.data.forEach((bar,i)=>{
+        const v=ds.data[i];
+        if(!v||v<=0)return;
+        ctx.save();
+        ctx.font='bold 10px "Noto Sans SC"';
+        ctx.fillStyle='#e8eaf0';
+        ctx.textBaseline='middle';
+        if(horizontal){
+          ctx.textAlign='left';
+          ctx.fillText(fmt(v),bar.x+14,bar.y);
+        } else {
+          ctx.textAlign='center';
+          ctx.fillText(fmt(v),bar.x,bar.y-14);
+        }
+        ctx.restore();
+      });
+    });
+  }
+
+  const labelPlugin3DV={id:'lbl3dv',afterDatasetsDraw(c){drawLabels(c,false);}};
+  const labelPlugin3DH={id:'lbl3dh',afterDatasetsDraw(c){drawLabels(c,true);}};
+
+  // ── 饼图3D效果（椭圆倾斜 + 厚度）
+  function draw3DPie(canvasId,labels,data,colors){
+    const canvas=document.getElementById(canvasId);
+    if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||300;
+    const H=canvas.offsetHeight||220;
+    canvas.width=W; canvas.height=H;
+
+    const cx=W*0.38, cy=H*0.48;
+    const rx=Math.min(W*0.28,H*0.38), ry=rx*0.55;
+    const DEPTH=18;
+    const tot=data.reduce((a,b)=>a+b,0);
+    if(!tot){ctx.clearRect(0,0,W,H);return;}
+
+    let startAngle=-Math.PI/2;
+    const slices=data.map((v,i)=>({v,angle:v/tot*Math.PI*2,color:colors[i],label:labels[i]}));
+
+    // 侧面（从下往上画，产生厚度）
+    for(let d=DEPTH;d>=0;d--){
+      let sa=-Math.PI/2;
+      slices.forEach(s=>{
+        const ea=sa+s.angle;
+        const mid=(sa+ea)/2;
+        if(mid>0&&mid<Math.PI){
+          ctx.beginPath();
+          ctx.moveTo(cx+Math.cos(sa)*rx, cy+Math.sin(sa)*ry+d);
+          ctx.ellipse(cx,cy+d,rx,ry,0,sa,ea);
+          ctx.lineTo(cx+Math.cos(ea)*rx, cy+Math.sin(ea)*ry);
+          ctx.ellipse(cx,cy,rx,ry,0,ea,sa,true);
+          ctx.closePath();
+          ctx.fillStyle=darken(s.color,20+d);
+          ctx.fill();
+        }
+        sa=ea;
+      });
+    }
+
+    // 顶面
+    let sa2=-Math.PI/2;
+    slices.forEach(s=>{
+      const ea=sa2+s.angle;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.ellipse(cx,cy,rx,ry,0,sa2,ea);
+      ctx.closePath();
+      ctx.fillStyle=s.color;
+      ctx.fill();
+      ctx.strokeStyle='rgba(15,17,23,0.4)';
+      ctx.lineWidth=1;
+      ctx.stroke();
+      sa2=ea;
+    });
+
+    // 占比标签
+    let sa3=-Math.PI/2;
+    slices.forEach(s=>{
+      const ea=sa3+s.angle;
+      const pct=s.v/tot*100;
+      if(pct>=4){
+        const mid=(sa3+ea)/2;
+        const lx=cx+Math.cos(mid)*rx*0.65;
+        const ly=cy+Math.sin(mid)*ry*0.65;
+        ctx.font='bold 11px "Noto Sans SC"';
+        ctx.fillStyle='#fff';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillText(fmtPct(pct),lx,ly);
+      }
+      sa3=ea;
+    });
+
+    // 图例（右侧）
+    const legX=W*0.72, legY=cy-slices.length*10;
+    slices.forEach((s,i)=>{
+      const lx=legX, ly=legY+i*22;
+      ctx.fillStyle=s.color;
+      ctx.fillRect(lx,ly,12,12);
+      ctx.font='11px "Noto Sans SC"';
+      ctx.fillStyle='#9099b0';
+      ctx.textAlign='left';
+      ctx.textBaseline='top';
+      ctx.fillText(s.label,lx+16,ly);
+    });
+  }
+
+  // ── 渲染所有图表 ──
+
+  // 收入饼图
+  draw3DPie('chartIncPie',['充值收入','广告收入','其他收入'],[incC,incA,incO],['#60a5fa','#4ade80','#2dd4bf']);
+
+  // 广告类型饼图
+  draw3DPie('chartAdTypePie',AD_TYPES,adVals,AD_COLORS);
+
+  // 广告收入类型明细 — 横向3D柱
+  mkChart('chartAdTypeBar',{
+    type:'bar',
+    data:{labels:AD_TYPES,datasets:[{label:'广告收入',data:adVals,backgroundColor:AD_COLORS,borderWidth:0,borderRadius:0}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tp,callbacks:{label:c=>`${fmt(c.raw)}`}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}},
+        y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}
+      }
+    },
+    plugins:[pseudo3DHBar,labelPlugin3DH]
+  });
+
+  // 广告收入对比：上月 vs 本月 — 竖3D柱
+  mkChart('chartAdTypeMom',{
+    type:'bar',
+    data:{labels:AD_TYPES,datasets:[
+      {label:'上月',data:adValsPrev,backgroundColor:'#2a3f6f',borderWidth:0,borderRadius:0},
+      {label:'本月',data:adVals,backgroundColor:'#60a5fa',borderWidth:0,borderRadius:0},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}},tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#9099b0',font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}}
+      }
+    },
+    plugins:[pseudo3DBar,labelPlugin3DV]
+  });
+
+  const costLabels=['技术开支','运营开支','商务开支','渠道开支','其他开支','充值损耗','广告损耗'];
+  const costVals=[expT,expO,expB,expCh,expOt,lossC,lossA];
+  const costPrev=[p_expT,p_expO,p_expB,p_expCh,p_expOt,p_lossC,p_lossA];
+  const costColors=['#60a5fa','#4ade80','#a78bfa','#fbbf24','#2dd4bf','#f87171','#fb923c'];
+
+  // 成本结构占比 — 3D饼图
+  draw3DPie('chartCostPie',costLabels,costVals,costColors);
+
+  // 成本开支 — 横向3D柱
+  mkChart('chartCostBar',{
+    type:'bar',
+    data:{labels:costLabels,datasets:[{label:'实际金额',data:costVals,backgroundColor:costColors,borderWidth:0,borderRadius:0}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tp,callbacks:{label:c=>`${fmt(c.raw)}`}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}},
+        y:{grid:{display:false},ticks:{color:'#9099b0',font:{size:11}}}
+      }
+    },
+    plugins:[pseudo3DHBar,labelPlugin3DH]
+  });
+
+  // 成本对比：上月 vs 本月 — 竖3D柱
+  mkChart('chartCostMom',{
+    type:'bar',
+    data:{labels:costLabels,datasets:[
+      {label:'上月',data:costPrev,backgroundColor:'#6b2e2e',borderWidth:0,borderRadius:0},
+      {label:'本月',data:costVals,backgroundColor:'#f87171',borderWidth:0,borderRadius:0},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#9099b0',font:{size:11}}},tooltip:{...tp,callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#9099b0',font:{size:10},maxRotation:35}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555e7a',font:{size:10},callback:v=>fmt(v)}}
+      }
+    },
+    plugins:[pseudo3DBar,labelPlugin3DV]
+  });
+  },100);
+}
+
+// ═══════════════════════════════════
+// UI 状态切换
+// ═══════════════════════════════════
+function showSkeleton(){
+  document.getElementById('skeleton-screen').style.display='block';
+  document.getElementById('error-screen').style.display='none';
+  document.getElementById('main-content').style.display='none';
+}
+function showContent(warnings){
+  document.getElementById('skeleton-screen').style.display='none';
+  document.getElementById('error-screen').style.display='none';
+  const main=document.getElementById('main-content');
+  main.style.display='block';
+  const oldWarn=document.getElementById('warn-bar-global');
+  if(oldWarn)oldWarn.remove();
+  if(warnings&&warnings.length){
+    const bar=document.createElement('div');
+    bar.id='warn-bar-global';
+    bar.className='warn-bar';
+    bar.innerHTML='<span class="warn-bar-icon">⚠</span><span>'+warnings.join('；')+'</span>';
+    main.parentNode.insertBefore(bar,main);
+  }
+}
+function showError(title,msg,detail){
+  document.getElementById('skeleton-screen').style.display='none';
+  document.getElementById('main-content').style.display='none';
+  const el=document.getElementById('error-screen');
+  el.style.display='block';
+  el.innerHTML=`
+  <div class="err-banner">
+    <div class="err-icon">✕</div>
+    <div class="err-body">
+      <div class="err-title">${title}</div>
+      <div class="err-msg">${msg}</div>
+      ${detail?`<div class="err-detail">${detail}</div>`:''}
+      <div class="err-actions">
+        <button class="err-btn err-btn-retry" onclick="retryRefresh()">↺ 重新加载</button>
+        <a class="err-btn err-btn-sheet" href="https://docs.google.com/spreadsheets/d/${SHEET_ID}" target="_blank">打开原始表格 ↗</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════
+// 刷新
+// ═══════════════════════════════════
+let _isFirstLoad=true;
+async function refresh(){
+  if(_isFirstLoad) showSkeleton();
+  const warnings=[];
+  try{
+    let dailyJson,adJson,budgetJson;
+    try{
+      dailyJson=await fetchGID(GID_DAILY);
+    }catch(e){
+      const isNetwork=e instanceof TypeError;
+      showError(
+        '数据加载失败',
+        isNetwork
+          ? '无法连接到 Google Sheets，请检查网络连接或确认表格已公开共享。'
+          : '获取日数据时发生错误，请稍后重试。',
+        e.message||String(e)
+      );
+      _isFirstLoad=false;
+      return;
+    }
+    [adJson,budgetJson]=await Promise.all([
+      fetchGID(GID_AD).catch(e=>{
+        warnings.push('广告数据加载失败，相关图表将显示为空');
+        console.warn('[BI] Ad data failed:',e);
+        return {table:{rows:[]}};
+      }),
+      fetchGID(GID_BUDGET).catch(e=>{
+        warnings.push('预算数据加载失败，达成率指标将无法显示');
+        console.warn('[BI] Budget data failed:',e);
+        return {table:{rows:[]}};
+      })
+    ]);
+    allRows=parseDailyRows(dailyJson);
+    adRows=parseAdRows(adJson);
+    budgetRows=parseBudgetRows(budgetJson);
+    if(allRows.length===0){
+      warnings.push('当前时间段内没有日数据，请调整筛选范围');
+    }
+    render();
+    showContent(warnings);
+    document.getElementById('upd').textContent='最后更新 '+new Date().toLocaleTimeString('zh-CN');
+  }catch(e){
+    console.error('[BI] Unexpected error:',e);
+    showError(
+      '渲染异常',
+      '看板在处理数据时发生意外错误，已记录到控制台。',
+      e.message||String(e)
+    );
+  }finally{
+    _isFirstLoad=false;
+  }
+}
+async function retryRefresh(){
+  _isFirstLoad=true;
+  await refresh();
+}
+
+// ═══════════════════════════════════
+// 初始化
+// ═══════════════════════════════════
+(function init(){
+  const t=new Date();
+  filterFrom=toYMD(startOfMonth());
+  filterTo=toYMD(t);
+  document.getElementById('date-from').value=filterFrom;
+  document.getElementById('date-to').value=filterTo;
+  updateLabel();
+})();
+
+// ═══════════════════════════════════
+// 日历组件
+// ═══════════════════════════════════
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+let calDragStart=null, calDragEnd=null, calDragging=false;
+let calFrom=null, calTo=null;
+
+function toggleCalendar(btn){
+  const popup=document.getElementById('cal-popup');
+  const isShow=popup.classList.contains('show');
+  if(isShow){popup.classList.remove('show');btn.classList.remove('active');return;}
+  // 定位弹窗
+  const rect=btn.getBoundingClientRect();
+  popup.style.top=(rect.bottom+6)+'px';
+  popup.style.left=rect.left+'px';
+  popup.classList.add('show');
+  btn.classList.add('active');
+  renderCalendar();
+}
+
+function calPrevMonth(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function calNextMonth(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
+
+function renderCalendar(){
+  const months=['01','02','03','04','05','06','07','08','09','10','11','12'];
+  document.getElementById('cal-title').textContent=`${calYear} / ${months[calMonth]}`;
+  const days=document.getElementById('cal-days');
+  days.innerHTML='';
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const todayStr=toYMD(new Date());
+  // 有数据的日期集合
+  const dataDays=new Set(allRows.map(r=>r.ymd));
+
+  // 空格
+  for(let i=0;i<firstDay;i++){
+    const el=document.createElement('div');
+    el.className='cal-day empty';
+    days.appendChild(el);
+  }
+  for(let d=1;d<=daysInMonth;d++){
+    const ymd=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el=document.createElement('div');
+    el.className='cal-day';
+    el.textContent=d;
+    el.dataset.ymd=ymd;
+    if(dataDays.has(ymd))el.classList.add('has-data');
+    if(ymd===todayStr)el.classList.add('today');
+    // 标记范围
+    const f=calFrom||calDragStart, t=calTo||calDragEnd;
+    if(f&&t){
+      const lo=f<t?f:t, hi=f<t?t:f;
+      if(ymd>=lo&&ymd<=hi)el.classList.add('in-range');
+      if(ymd===lo)el.classList.add('range-start');
+      if(ymd===hi)el.classList.add('range-end');
+    } else if(f&&ymd===f){
+      el.classList.add('range-start');
+    }
+    // 拖选事件
+    el.addEventListener('mousedown',e=>{
+      calDragging=true;calDragStart=ymd;calDragEnd=ymd;calFrom=null;calTo=null;
+      renderCalendar();e.preventDefault();e.stopPropagation();
+    });
+    el.addEventListener('mouseover',e=>{
+      if(!calDragging)return;
+      calDragEnd=ymd;renderCalendar();
+    });
+    days.appendChild(el);
+  }
+  // 更新标签
+  const f=calFrom||calDragStart, t=calTo||calDragEnd;
+  if(f&&t){
+    const lo=f<t?f:t, hi=f<t?t:f;
+    document.getElementById('cal-selected-label').textContent=lo===hi?lo:`${lo} → ${hi}`;
+  } else {
+    document.getElementById('cal-selected-label').textContent='点击选择日期，拖动选范围';
+  }
+}
+
+document.addEventListener('mouseup',()=>{
+  if(!calDragging)return;
+  calDragging=false;
+  if(calDragStart&&calDragEnd){
+    const lo=calDragStart<calDragEnd?calDragStart:calDragEnd;
+    const hi=calDragStart<calDragEnd?calDragEnd:calDragStart;
+    calFrom=lo;calTo=hi;
+    renderCalendar();
+  }
+});
+
+// 点击外部关闭（排除日历内部所有操作）
+document.addEventListener('mousedown',e=>{
+  const popup=document.getElementById('cal-popup');
+  const btn=document.getElementById('cal-toggle-btn');
+  if(!popup.classList.contains('show'))return;
+  if(popup.contains(e.target)||btn.contains(e.target))return;
+  popup.classList.remove('show');
+  btn.classList.remove('active');
+});
+
+function applyCalendar(){
+  if(!calFrom)return;
+  const lo=calFrom, hi=calTo||calFrom;
+  filterFrom=lo;filterTo=hi;
+  document.getElementById('date-from').value=lo;
+  document.getElementById('date-to').value=hi;
+  document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+  updateLabel();render();showContent([]);
+  document.getElementById('cal-popup').classList.remove('show');
+  document.getElementById('cal-toggle-btn').classList.remove('active');
+}
+
+refresh();
+setInterval(refresh,REFRESH_MS);
+</script>
+</body>
+</html>
