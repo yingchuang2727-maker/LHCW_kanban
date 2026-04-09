@@ -1310,14 +1310,14 @@ document.addEventListener('mouseup',()=>{
   }
 });
 
-// 点击外部关闭
+// 点击外部关闭（排除日历内部所有操作）
 document.addEventListener('mousedown',e=>{
   const popup=document.getElementById('cal-popup');
   const btn=document.getElementById('cal-toggle-btn');
-  if(!popup.contains(e.target)&&!btn.contains(e.target)){
-    popup.classList.remove('show');
-    btn.classList.remove('active');
-  }
+  if(!popup.classList.contains('show'))return;
+  if(popup.contains(e.target)||btn.contains(e.target))return;
+  popup.classList.remove('show');
+  btn.classList.remove('active');
 });
 
 function applyCalendar(){
