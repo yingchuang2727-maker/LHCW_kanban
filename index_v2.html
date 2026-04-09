@@ -768,27 +768,10 @@ function updateLabel(){
 const tp={backgroundColor:'rgba(26,29,39,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#9099b0',bodyColor:'#e8eaf0'};
 
 function mkChart(id,cfg){
-  // 首次创建
-  if(!charts[id]){
-    const ctx=document.getElementById(id);
-    if(!ctx)return;
-    charts[id]=new Chart(ctx,cfg);
-    return;
-  }
-  // 已存在：增量更新，避免 destroy 重建导致闪烁
-  const ch=charts[id];
-  const newData=cfg.data;
-  // 更新 labels
-  ch.data.labels=newData.labels;
-  // 更新每个 dataset 的 data（其余配置不变，保留动画连续性）
-  newData.datasets.forEach((ds,i)=>{
-    if(ch.data.datasets[i]){
-      ch.data.datasets[i].data=ds.data;
-      // 颜色可能随数据变化，同步更新
-      if(ds.backgroundColor)ch.data.datasets[i].backgroundColor=ds.backgroundColor;
-    }
-  });
-  ch.update('active');
+  if(charts[id])charts[id].destroy();
+  const ctx=document.getElementById(id);
+  if(!ctx)return;
+  charts[id]=new Chart(ctx,cfg);
 }
 
 function pieOpts(labels,data,colors){
@@ -870,7 +853,7 @@ function render(){
   ];
 
   const main=document.getElementById('main-content');
-  const _html=`
+  main.innerHTML=`
   <!-- ① 总览 -->
   <div class="sec">总览</div>
   <div class="kg5">
@@ -1071,9 +1054,6 @@ function render(){
     <div class="cs">各项支出环比变化</div>
     <div style="height:200px"><canvas id="chartCostMom"></canvas></div>
   </div>`;
-
-  // 批量写入 DOM，rAF 避免同步 reflow 闪烁
-  requestAnimationFrame(()=>{ main.innerHTML=_html; });
 
   // ── 图表 ──
   setTimeout(()=>{
